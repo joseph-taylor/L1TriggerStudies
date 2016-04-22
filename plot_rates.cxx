@@ -1,605 +1,1101 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TStyle.h"
+#include "TLegend.h"
 #include <TCanvas.h>
+#include <TLatex.h>
 #include <string>
 #include <iostream>
 
-// improve by packaging this up
-// todo: wrap this up in functions
 
-
-// void individual_plot(string dirName, int numberOfHistos, string histoName, string outPutFileName,
-// 					 string xaxisName, string yaxisName, double xStartPoint, double xFinishPoint){
-
-
-// 	string inputFileName = dirName + "histos.root";
-// 	TFile * f = new TFile( fileName.c_str() );
-// 	if (f==0){
-// 		cout << "Cannot load file " << inputFileName << endl;
-// 		return;
-// 	}
-
-//     TH1F * h = (TH1F*)f->Get( histoName.c_str() );
-//     if (h==0){
-//       cout << "Cannot open histogram" << endl;
-
-//       return;}
+//todo: put this into a plotting class?
 
 
 
-//     TH1F * singleJetRatesEmu = (TH1F*)f->Get("singleJetRates_emu");
-//     singleJetRatesEmu->SetLineColor(2);
-//     singleJetRatesEmu->SetLineWidth(2);
-//     singleJetRatesEmu->GetXaxis()->SetTitle("single L1emu Jet E_{T} Threshold (GeV)");
-//     singleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-// 	//singleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-// 	//singleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-// 	TCanvas * cEMU_jet1 = new TCanvas("cEMU_jet1","",650,600);
-// 	gPad->SetLogy();	
-// 	gStyle->SetOptStat(0);
-// 	singleJetRatesEmu->Draw();
-// 	string singleJetRatesEmuSaveName = dirName + "singleJetRatesEmu.pdf";
-// 	cEMU_jet1->SaveAs( singleJetRatesEmuSaveName.c_str() );
-// 	cEMU_jet1->Close();
 
-
-
-// }
-
-
+void individual_plot(string dirName,string outputFileName,string xaxisName,string yaxisName,
+					 bool setOwnRange,double xStartPoint,double xFinishPoint,bool logOn,
+					 bool legendOn,double legXmin,double legYmin,double legXmax,double legYmax,
+					 int numberOfHistos,string histoName1,string legName1,int histoStyle1,
+					 int histoColour1,string histoName2,string legName2,int histoStyle2,
+					 int histoColour2,string histoName3,string legName3,int histoStyle3,
+					 int histoColour3,string histoName4,string legName4,int histoStyle4,
+					 int histoColour4,string histoName5,string legName5,int histoStyle5,
+					 int histoColour5,string histoName6,string legName6,int histoStyle6,
+					 int histoColour6,bool additionalTextOn,string additionalText,bool autoPosition,
+					 double textStartXPos,double textStartYPos);
 
 
 
 
 void plot_rates(){
 
-	string dirName = "output_rates/run269224_zeroBias_v34p0_update/";
+	string dirName = "output_rates/run269224_zeroBias_v34p0/";
+	string additionalText = "CMS Preliminary, #sqrt{s}=13 TeV, ZeroBias run259721";
+//emu and hw
+//Rates
 
-	string fileName = dirName + "histos.root";
-	TFile * f = new TFile( fileName.c_str() );
+
+
+	//singleDoubleTripleJetsRates
+	individual_plot(dirName.c_str(),								     //dirName
+					"singleDoubleJetRates",								 //outputFileName
+					"L1 Jet E_{T} Threshold (GeV)",						 //xaxisName
+					"Rate (Hz)",										 //yaxisName
+					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+					true,												 //logOn
+					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+					6,													 //number of histos (currently four is the maximum)
+
+					"singleJetRates_emu",								 //histoName1
+					"singleJet_emu",									 //legNam1
+					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+					2,													 //histoColour1
+
+					"singleJetRates_hw",								 //histo2
+					"singleJet_hw",
+					7,
+					2,
+
+					"doubleJetRates_emu",                         		 //histo3
+					"doubleJet_emu",
+					1,
+					4,
+
+					"doubleJetRates_hw",                         		 //histo4
+					"doubleJet_hw",
+					7,
+					4,
+
+
+					"tripleJetRates_emu",                         		 //histo3
+					"tripleJet_emu",
+					1,
+					1,
+
+					"tripleJetRates_hw",                         		 //histo4
+					"tripleJet_hw",
+					7,
+					1,
+
+
+
+
+
+					true,                                                    //additionalTextOn
+					additionalText.c_str(),  //the additional text
+					false, 10, 2*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+					);
+
+
+
+
+
+
+
+
+
+
+
+
+// 	//singleDoubleJetsRates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleJetRates",								 //outputFileName
+// 					"L1 Jet E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"singleJetRates_emu",								 //histoName1
+// 					"singleJet_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"singleJetRates_hw",								 //histo2
+// 					"singleJet_hw",
+// 					7,
+// 					2,
+
+// 					"doubleJetRates_emu",                         		 //histo3
+// 					"doubleJet_emu",
+// 					1,
+// 					4,
+
+// 					"doubleJetRates_hw",                         		 //histo4
+// 					"doubleJet_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//singleDoubleEGsRates
+// 	individual_plot(dirName.c_str(),"singleDoubleEGRates","L1 EG E_{T} Threshold (GeV)","Rate (Hz)",true,0,200,
+// 					true,true, 0.60, 0.60, 0.85, 0.85,4,"singleEgRates_emu","singleEg_emu",1,2,"singleEgRates_hw",
+// 					"singleEg_hw",7,2,"doubleEgRates_emu","doubleEg_emu",1,4,"doubleEgRates_hw","doubleEg_hw",7,4,
+// 					true,additionalText.c_str(),false,10,1.5*pow(10,8));
+
+
+// 	//ett htt Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"ett_htt_Rates",    								 //outputFileName
+// 					"L1 Sum E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"etSumRates_emu",								 //histoName1
+// 					"ETT_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"etSumRates_hw",								 //histo2
+// 					"ETT_hw",
+// 					7,
+// 					2,
+
+// 					"htSumRates_emu",                         		 //histo3
+// 					"HTT_emu",
+// 					1,
+// 					4,
+
+// 					"htSumRates_hw",                         		 //histo4
+// 					"HTT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//met mht Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"met_mht_Rates",    								 //outputFileName
+// 					"L1 Sum E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"metSumRates_emu",								 //histoName1
+// 					"MET_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"metSumRates_hw",								 //histo2
+// 					"MET_hw",
+// 					7,
+// 					2,
+
+// 					"mhtSumRates_emu",                         		 //histo3
+// 					"MHT_emu",
+// 					1,
+// 					4,
+
+// 					"mhtSumRates_hw",                         		 //histo4
+// 					"MHT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//TAU Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"tau_Rates",    								 //outputFileName
+// 					"L1 Tau E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					true,0,150,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"tauRates_emu",								 //histoName1
+// 					"singleTau_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"tauRates_hw",								 //histo2
+// 					"singleTau_hw",
+// 					7,
+// 					2,
+
+// 					"",                         		 //histo3
+// 					"",
+// 					0,
+// 					0,
+
+// 					"",                         		 //histo4
+// 					"",
+// 					0,
+// 					0,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// //Distributions
+
+// 	//singleDoubleJetsDists
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleJetDist",								 //outputFileName
+// 					"L1 Jet E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"leadingJetDist_emu",								 //histoName1
+// 					"leadingJet_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"leadingJetDist_hw",								 //histo2
+// 					"leadingJet_hw",
+// 					7,
+// 					2,
+
+// 					"secondJetDist_emu",                         		 //histo3
+// 					"secondJet_emu",
+// 					1,
+// 					4,
+
+// 					"secondJetDist_hw",                         		 //histo4
+// 					"secondJet_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//singleDoubleEGsDist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleEGDist",								 //outputFileName
+// 					"L1 EG E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					true,0,200,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"leadingEgDist_emu",								 //histoName1
+// 					"leadingEg_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"leadingEgDist_hw",								 //histo2
+// 					"leadingEg_hw",
+// 					7,
+// 					2,
+
+// 					"secondEgDist_emu",                         		 //histo3
+// 					"secondEg_emu",
+// 					1,
+// 					4,
+
+// 					"secondEgDist_hw",                         		 //histo4
+// 					"secondEg_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//ett htt Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"ett_htt_Dist",    								 //outputFileName
+// 					"L1 Sum E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"etSumDist_emu",								 //histoName1
+// 					"ETT_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"etSumDist_hw",								 //histo2
+// 					"ETT_hw",
+// 					7,
+// 					2,
+
+// 					"htSumDist_emu",                         		 //histo3
+// 					"HTT_emu",
+// 					1,
+// 					4,
+
+// 					"htSumDist_hw",                         		 //histo4
+// 					"HTT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//met mht Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"met_mht_Dist",    								 //outputFileName
+// 					"L1 Sum E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					4,													 //number of histos (currently four is the maximum)
+
+// 					"metSumDist_emu",								 //histoName1
+// 					"MET_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"metSumDist_hw",								 //histo2
+// 					"MET_hw",
+// 					7,
+// 					2,
+
+// 					"mhtSumDist_emu",                         		 //histo3
+// 					"MHT_emu",
+// 					1,
+// 					4,
+
+// 					"mhtSumDist_hw",                         		 //histo4
+// 					"MHT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200									 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//TAU Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"tau_Dist",    								 //outputFileName
+// 					"L1 Tau E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					true,0,150,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"leadingTauDist_emu",								 //histoName1
+// 					"leadingTau_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"leadingTauDist_hw",								 //histo2
+// 					"leadingTau_hw",
+// 					7,
+// 					2,
+
+// 					"",                         		 //histo3
+// 					"",
+// 					0,
+// 					0,
+
+// 					"",                         		 //histo4
+// 					"",
+// 					0,
+// 					0,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+
+
+
+// //emu only
+// //Rates
+// 	//singleDoubleJetsRates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleJetRates",								 //outputFileName
+// 					"L1 Jet E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"singleJetRates_emu",								 //histoName1
+// 					"singleJet_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"doubleJetRates_emu",                         		 //histo3
+// 					"doubleJet_emu",
+// 					1,
+// 					4,
+
+
+// 					"singleJetRates_hw",								 //histo2
+// 					"singleJet_hw",
+// 					7,
+// 					2,
+// 					"doubleJetRates_hw",                         		 //histo4
+// 					"doubleJet_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//singleDoubleEGsRates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleEGRates",								 //outputFileName
+// 					"L1 EG E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					true,0,200,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"singleEgRates_emu",								 //histoName1
+// 					"singleEg_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"doubleEgRates_emu",                         		 //histo3
+// 					"doubleEg_emu",
+// 					1,
+// 					4,
+
+
+// 					"singleEgRates_hw",								 //histo2
+// 					"singleEg_hw",
+// 					7,
+// 					2,
+// 					"doubleEgRates_hw",                         		 //histo4
+// 					"doubleEg_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//ett htt Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"ett_htt_Rates",    								 //outputFileName
+// 					"L1 Sum E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"etSumRates_emu",								 //histoName1
+// 					"ETT_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"htSumRates_emu",                         		 //histo3
+// 					"HTT_emu",
+// 					1,
+// 					4,
+
+// 					"etSumRates_hw",								 //histo2
+// 					"ETT_hw",
+// 					7,
+// 					2,
+// 					"htSumRates_hw",                         		 //histo4
+// 					"HTT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//met mht Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"met_mht_Rates",    								 //outputFileName
+// 					"L1 Sum E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"metSumRates_emu",								 //histoName1
+// 					"MET_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"mhtSumRates_emu",                         		 //histo3
+// 					"MHT_emu",
+// 					1,
+// 					4,
+
+
+// 					"metSumRates_hw",								 //histo2
+// 					"MET_hw",
+// 					7,
+// 					2,
+// 					"mhtSumRates_hw",                         		 //histo4
+// 					"MHT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//TAU Rates
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"tau_Rates",    								 //outputFileName
+// 					"L1 Tau E_{T} Threshold (GeV)",						 //xaxisName
+// 					"Rate (Hz)",										 //yaxisName
+// 					true,0,150,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					1,													 //number of histos (currently four is the maximum)
+
+// 					"tauRates_emu",								 //histoName1
+// 					"singleTau_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"tauRates_hw",								 //histo2
+// 					"singleTau_hw",
+// 					7,
+// 					2,
+
+// 					"",                         		 //histo3
+// 					"",
+// 					0,
+// 					0,
+
+// 					"",                         		 //histo4
+// 					"",
+// 					0,
+// 					0,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					false, 10, 1.5*pow(10,8)								 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// //Distributions
+
+// 	//singleDoubleJetsDists
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleJetDist",								 //outputFileName
+// 					"L1 Jet E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"leadingJetDist_emu",								 //histoName1
+// 					"leadingJet_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"secondJetDist_emu",                         		 //histo3
+// 					"secondJet_emu",
+// 					1,
+// 					4,
+
+// 					"leadingJetDist_hw",								 //histo2
+// 					"leadingJet_hw",
+// 					7,
+// 					2,
+// 					"secondJetDist_hw",                         		 //histo4
+// 					"secondJet_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//singleDoubleEGsDist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"singleDoubleEGDist",								 //outputFileName
+// 					"L1 EG E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					true,0,200,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"leadingEgDist_emu",								 //histoName1
+// 					"leadingEg_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"secondEgDist_emu",                         		 //histo3
+// 					"secondEg_emu",
+// 					1,
+// 					4,
+
+// 					"leadingEgDist_hw",								 //histo2
+// 					"leadingEg_hw",
+// 					7,
+// 					2,
+// 					"secondEgDist_hw",                         		 //histo4
+// 					"secondEg_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+// 	//ett htt Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"ett_htt_Dist",    								 //outputFileName
+// 					"L1 Sum E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"etSumDist_emu",								 //histoName1
+// 					"ETT_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"htSumDist_emu",                         		 //histo3
+// 					"HTT_emu",
+// 					1,
+// 					4,
+
+// 					"etSumDist_hw",								 //histo2
+// 					"ETT_hw",
+// 					7,
+// 					2,
+// 					"htSumDist_hw",                         		 //histo4
+// 					"HTT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//met mht Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"met_mht_Dist",    								 //outputFileName
+// 					"L1 Sum E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					false,0,0,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					2,													 //number of histos (currently four is the maximum)
+
+// 					"metSumDist_emu",								 //histoName1
+// 					"MET_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+
+
+// 					"mhtSumDist_emu",                         		 //histo3
+// 					"MHT_emu",
+// 					1,
+// 					4,
+
+// 					"metSumDist_hw",								 //histo2
+// 					"MET_hw",
+// 					7,
+// 					2,
+// 					"mhtSumDist_hw",                         		 //histo4
+// 					"MHT_hw",
+// 					7,
+// 					4,
+
+// 					true,                                                    //additionalTextOn
+// 					additionalText.c_str(),  //the additional text
+// 					true, 10, 200									 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+
+// 	//TAU Dist
+// 	individual_plot(dirName.c_str(),								     //dirName
+// 					"tau_Dist",    								 //outputFileName
+// 					"L1 Tau E_{T} (GeV)",						 //xaxisName
+// 					"",										 //yaxisName
+// 					true,0,150,											 //setOwnRange,xStartPoint,yStartPoint
+
+// 					true,												 //logOn
+// 					true, 0.60, 0.60, 0.85, 0.85,						 //legendOn: legend coords (xmin, ymin, xmax, ymax)
+
+// 					1,													 //number of histos (currently four is the maximum)
+
+// 					"leadingTauDist_emu",								 //histoName1
+// 					"leadingTau_emu",									 //legNam1
+// 					1,													 //histoStyle1 (1=nondotted, 7=dotted)
+// 					2,													 //histoColour1
+
+// 					"",								 //histo2
+// 					"",
+// 					0,
+// 					0,
+
+// 					"",                         		 //histo3
+// 					"",
+// 					0,
+// 					0,
+
+// 					"",                         		 //histo4
+// 					"",
+// 					0,
+// 					0,
+
+// 					true,                                                //additionalTextOn
+// 					additionalText.c_str(), 							 //the additional text
+// 					true, 10, 200										 //autoPosition?, textStartXpos, textStartYpos
+// 					);
+
+
+}
+
+
+
+
+
+
+
+
+
+void individual_plot(string dirName,
+					 string outputFileName,
+
+					 string xaxisName,
+					 string yaxisName,
+
+					 bool setOwnRange,
+					 double xStartPoint,
+					 double xFinishPoint,
+
+					 bool logOn,
+
+					 bool legendOn,
+					 double legXmin,
+					 double legYmin,
+ 					 double legXmax,
+					 double legYmax,
+
+					 int numberOfHistos,
+
+					 string histoName1,
+					 string legName1,
+					 int histoStyle1,
+					 int histoColour1,
+
+					 string histoName2,
+					 string legName2,
+					 int histoStyle2,
+					 int histoColour2,
+
+					 string histoName3,
+					 string legName3,
+					 int histoStyle3,
+					 int histoColour3,
+
+					 string histoName4,
+					 string legName4,
+					 int histoStyle4,
+					 int histoColour4,
+
+					 string histoName5,
+					 string legName5,
+					 int histoStyle5,
+					 int histoColour5,
+
+					 string histoName6,
+					 string legName6,
+					 int histoStyle6,
+					 int histoColour6,
+
+					 bool additionalTextOn,
+					 string additionalText,
+					 bool autoPosition,
+					 double textStartXPos,
+					 double textStartYPos){
+
+	string inputFileName = dirName + "histos.root";
+	TFile * f = new TFile( inputFileName.c_str() );
 	if (f==0){
-		cout << "Cannot load file" << endl;
+		cout << "Cannot load file " << inputFileName << endl;
 		return;
 	}
 
- //    TH1F * singleJetRatesEmu = (TH1F*)f->Get("singleJetRates_emu");
- //    TH1F * singleJetRatesHW = (TH1F*)f->Get("singleJetRates_hw");   
- //    singleJetRatesEmu->SetLineColor(2);
- //    singleJetRatesEmu->SetLineWidth(2);
- //    singleJetRatesHW->SetLineWidth(2);
- //    singleJetRatesEmu->GetXaxis()->SetTitle("single L1 Jet E_{T} Threshold (GeV)");
- //    singleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //singleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet1 = new TCanvas("cEMU_jet1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleJetRatesEmu->Draw();
-	// singleJetRatesHW->Draw("same");
-	// string singleJetRatesEmuSaveName = dirName + "singleJetRatesEmuHW.pdf";
-	// cEMU_jet1->SaveAs( singleJetRatesEmuSaveName.c_str() );
-	// cEMU_jet1->Close();
-
-	TH1F * doubleJetRatesEmu = (TH1F*)f->Get("doubleJetRates_emu");
-		TH1F * doubleJetRatesHW = (TH1F*)f->Get("doubleJetRates_hw");
-    doubleJetRatesEmu->SetLineColor(2);
-    doubleJetRatesEmu->SetLineWidth(2);
-    doubleJetRatesHW->SetLineWidth(2);
-    doubleJetRatesEmu->GetXaxis()->SetTitle("double L1 Jet E_{T} Threshold (GeV)");
-    doubleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	//doubleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	//doubleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	TCanvas * cEMU_jet2 = new TCanvas("cEMU_jet2","",650,600);
-	gPad->SetLogy();	
+	TCanvas * c = new TCanvas("c","",650,600);
 	gStyle->SetOptStat(0);
-	doubleJetRatesEmu->Draw();
-	doubleJetRatesHW->Draw("same");
-	string doubleJetRatesEmuSaveName = dirName + "doubleJetRatesEmuHW.pdf";
-	cEMU_jet2->SaveAs( doubleJetRatesEmuSaveName.c_str() );
-	cEMU_jet2->Close();
+	if (logOn) gPad->SetLogy();	
 
-	// TH1F * tripleJetRatesEmu = (TH1F*)f->Get("tripleJetRates_emu");
-	// 	TH1F * tripleJetRatesHW = (TH1F*)f->Get("tripleJetRates_hw");
- //    tripleJetRatesEmu->SetLineColor(2);
- //    tripleJetRatesEmu->SetLineWidth(2);
- //    tripleJetRatesHW->SetLineWidth(2);
- //    tripleJetRatesEmu->GetXaxis()->SetTitle("triple L1 Jet E_{T} Threshold (GeV)");
- //    tripleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tripleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //tripleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet3 = new TCanvas("cEMU_jet3","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tripleJetRatesEmu->Draw();
-	// tripleJetRatesHW->Draw("same");
-	// string tripleJetRatesEmuSaveName = dirName + "tripleJetRatesEmuHW.pdf";
-	// cEMU_jet3->SaveAs( tripleJetRatesEmuSaveName.c_str() );
-	// cEMU_jet3->Close();
+    TH1F * h1 = (TH1F*)f->Get( histoName1.c_str() );
+    TH1F * h2 = (TH1F*)f->Get( histoName2.c_str() );
+    TH1F * h3 = (TH1F*)f->Get( histoName3.c_str() );
+    TH1F * h4 = (TH1F*)f->Get( histoName4.c_str() );
+    TH1F * h5 = (TH1F*)f->Get( histoName5.c_str() );
+    TH1F * h6 = (TH1F*)f->Get( histoName6.c_str() );
 
-	// TH1F * quadJetRatesEmu = (TH1F*)f->Get("quadJetRates_emu");
-	// 	TH1F * quadJetRatesHW = (TH1F*)f->Get("quadJetRates_hw");
- //    quadJetRatesEmu->SetLineColor(2);
- //    quadJetRatesEmu->SetLineWidth(2);
- //    quadJetRatesHW->SetLineWidth(2);
- //    quadJetRatesEmu->GetXaxis()->SetTitle("quad L1 Jet E_{T} Threshold (GeV)");
- //    quadJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //quadJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //quadJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet4 = new TCanvas("cEMU_jet4","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// quadJetRatesEmu->Draw();
-	// quadJetRatesHW->Draw("same");
-	// string quadJetRatesEmuSaveName = dirName + "quadJetRatesEmuHW.pdf";
-	// cEMU_jet4->SaveAs( quadJetRatesEmuSaveName.c_str() );
-	// cEMU_jet4->Close();
+ 	TLegend * leg = new TLegend(legXmin, legYmin, legXmax, legYmax);
+  	leg->SetLineColor(0);
+    
+    if (setOwnRange) h1->GetXaxis()->SetRangeUser(xStartPoint,xFinishPoint);
 
-	// TH1F * singleEgRatesEmu = (TH1F*)f->Get("singleEgRates_emu");
-	// 	TH1F * singleEgRatesHW = (TH1F*)f->Get("singleEgRates_hw");
- //    singleEgRatesEmu->SetLineColor(2);
- //    singleEgRatesEmu->SetLineWidth(2);
- //    singleEgRatesHW->SetLineWidth(2);
- //    singleEgRatesEmu->GetXaxis()->SetTitle("single L1 EG E_{T} Threshold (GeV)");
- //    singleEgRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleEgRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //singleEgRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_eg1 = new TCanvas("cEMU_eg1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleEgRatesEmu->Draw();
-	// singleEgRatesHW->Draw("same");
-	// string singleEgRatesEmuSaveName = dirName + "singleEgRatesEmuHW.pdf";
-	// cEMU_eg1->SaveAs( singleEgRatesEmuSaveName.c_str() );
-	// cEMU_eg1->Close();
+    if (numberOfHistos==1){
+	  	h1->SetLineColor(histoColour1);
+	    h1->SetLineWidth(2);
+	    h1->SetLineStyle(histoStyle1);
+        h1->GetXaxis()->SetTitleOffset(1.2);
+        h1->GetYaxis()->SetTitleOffset(1.2);
+	    h1->GetXaxis()->SetTitle(xaxisName.c_str());
+	    h1->GetYaxis()->SetTitle(yaxisName.c_str());
+	    h1->Draw("same");
+	    if (legendOn){
+	    	leg->AddEntry(h1, legName1.c_str(), "L");
+	    	leg->Draw();
+	    }
+	}
 
-	// TH1F * doubleEgRatesEmu = (TH1F*)f->Get("doubleEgRates_emu");
-	// 	TH1F * doubleEgRatesHW = (TH1F*)f->Get("doubleEgRates_hw");
- //    doubleEgRatesEmu->SetLineColor(2);
- //    doubleEgRatesEmu->SetLineWidth(2);
- //    doubleEgRatesHW->SetLineWidth(2);
- //    doubleEgRatesEmu->GetXaxis()->SetTitle("double L1 EG E_{T} Threshold (GeV)");
- //    doubleEgRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //doubleEgRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //doubleEgRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_eg2 = new TCanvas("cEMU_eg2","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// doubleEgRatesEmu->Draw();
-	// doubleEgRatesHW->Draw("same");
-	// string doubleEgRatesEmuSaveName = dirName + "doubleEgRatesEmuHW.pdf";
-	// cEMU_eg2->SaveAs( doubleEgRatesEmuSaveName.c_str() );
-	// cEMU_eg2->Close();
+    if (numberOfHistos==2){
+	  	h1->SetLineColor(histoColour1);
+	    h1->SetLineWidth(2);
+	    h1->SetLineStyle(histoStyle1);
+        h1->GetXaxis()->SetTitleOffset(1.2);
+        h1->GetYaxis()->SetTitleOffset(1.2);
+	    h1->GetXaxis()->SetTitle(xaxisName.c_str());
+	    h1->GetYaxis()->SetTitle(yaxisName.c_str());
+	    h1->Draw("same");
+      	h2->SetLineColor(histoColour2);
+	    h2->SetLineWidth(2);
+	    h2->SetLineStyle(histoStyle2);
+	    h2->Draw("same");
+	    if (legendOn){
+		    leg->AddEntry(h1, legName1.c_str(), "L");
+	      	leg->AddEntry(h2, legName2.c_str(), "L");  	
+		    leg->Draw();
+		}
+	}
 
-	// TH1F * tauRatesEmu = (TH1F*)f->Get("tauRates_emu");
-	// 	TH1F * tauRatesHW = (TH1F*)f->Get("tauRates_hw");
- //    tauRatesEmu->SetLineColor(2);
- //    tauRatesEmu->SetLineWidth(2);
- //    tauRatesHW->SetLineWidth(2);
- //    tauRatesEmu->GetXaxis()->SetTitle("L1 tau E_{T} Threshold (GeV)");
- //    tauRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tauRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //tauRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_tau = new TCanvas("cEMU_tau","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tauRatesEmu->Draw();
-	// tauRatesHW->Draw("same");
-	// string tauRatesEmuSaveName = dirName + "tauRatesEmuHW.pdf";
-	// cEMU_tau->SaveAs( tauRatesEmuSaveName.c_str() );
-	// cEMU_tau->Close();
+    if (numberOfHistos==3){
+	  	h1->SetLineColor(histoColour1);
+	    h1->SetLineWidth(2);
+	    h1->SetLineStyle(histoStyle1);
+        h1->GetXaxis()->SetTitleOffset(1.2);
+        h1->GetYaxis()->SetTitleOffset(1.2);
+	    h1->GetXaxis()->SetTitle(xaxisName.c_str());
+	    h1->GetYaxis()->SetTitle(yaxisName.c_str());
+	    h1->Draw("same");
+      	h2->SetLineColor(histoColour2);
+	    h2->SetLineWidth(2);
+	    h2->SetLineStyle(histoStyle2);
+	    h2->Draw("same");
+      	h3->SetLineColor(histoColour3);
+	    h3->SetLineWidth(2);
+	    h3->SetLineStyle(histoStyle3);
+	    h3->Draw("same");
+	    if (legendOn){
+		    leg->AddEntry(h1, legName1.c_str(), "L");
+	      	leg->AddEntry(h2, legName2.c_str(), "L");
+	      	leg->AddEntry(h3, legName3.c_str(), "L");
+		    leg->Draw();
+		}
+	}
 
-	// TH1F * htSumRatesEmu = (TH1F*)f->Get("htSumRates_emu");
-	// 	TH1F * htSumRatesHW = (TH1F*)f->Get("htSumRates_hw");
- //    htSumRatesEmu->SetLineColor(2);
- //    htSumRatesEmu->SetLineWidth(2);
- //    htSumRatesHW->SetLineWidth(2);
- //    htSumRatesEmu->GetXaxis()->SetTitle("L1 HTT Threshold (GeV)");
- //    htSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //htSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //htSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_htSum = new TCanvas("cEMU_htSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// htSumRatesEmu->Draw();
-	// htSumRatesHW->Draw("same");
-	// string htSumRatesEmuSaveName = dirName + "htSumRatesEmuHW.pdf";
-	// cEMU_htSum->SaveAs( htSumRatesEmuSaveName.c_str() );
-	// cEMU_htSum->Close();
+    if (numberOfHistos==4){
+	  	h1->SetLineColor(histoColour1);
+	    h1->SetLineWidth(2);
+	    h1->SetLineStyle(histoStyle1);
+        h1->GetXaxis()->SetTitleOffset(1.2);
+        h1->GetYaxis()->SetTitleOffset(1.2);
+	    h1->GetXaxis()->SetTitle(xaxisName.c_str());
+	    h1->GetYaxis()->SetTitle(yaxisName.c_str());
+	    h1->Draw("same");
+      	h2->SetLineColor(histoColour2);
+	    h2->SetLineWidth(2);
+	    h2->SetLineStyle(histoStyle2);
+	    h2->Draw("same");
+      	h3->SetLineColor(histoColour3);
+	    h3->SetLineWidth(2);
+	    h3->SetLineStyle(histoStyle3);
+	    h3->Draw("same");
+      	h4->SetLineColor(histoColour4);
+	    h4->SetLineWidth(2);
+	    h4->SetLineStyle(histoStyle4);
+	    h4->Draw("same");
+	    if (legendOn){
+		    leg->AddEntry(h1, legName1.c_str(), "L");
+	      	leg->AddEntry(h2, legName2.c_str(), "L");
+	      	leg->AddEntry(h3, legName3.c_str(), "L");
+	      	leg->AddEntry(h4, legName4.c_str(), "L");
+		    leg->Draw();
+		}
+	}
 
-	// TH1F * mhtSumRatesEmu = (TH1F*)f->Get("mhtSumRates_emu");
-	// 	TH1F * mhtSumRatesHW = (TH1F*)f->Get("mhtSumRates_hw");
- //    mhtSumRatesEmu->SetLineColor(2);
- //    mhtSumRatesEmu->SetLineWidth(2);
- //    mhtSumRatesHW->SetLineWidth(2);
- //    mhtSumRatesEmu->GetXaxis()->SetTitle("L1 MHT Threshold (GeV)");
- //    mhtSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //mhtSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //mhtSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_mhtSum = new TCanvas("cEMU_mhtSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// mhtSumRatesEmu->Draw();
-	// mhtSumRatesHW->Draw("same");
-	// string mhtSumRatesEmuSaveName = dirName + "mhtSumRatesEmuHW.pdf";
-	// cEMU_mhtSum->SaveAs( mhtSumRatesEmuSaveName.c_str() );
-	// cEMU_mhtSum->Close();
-
-	// TH1F * etSumRatesEmu = (TH1F*)f->Get("etSumRates_emu");
-	// 	TH1F * etSumRatesHW = (TH1F*)f->Get("etSumRates_hw");
- //    etSumRatesEmu->SetLineColor(2);
- //    etSumRatesEmu->SetLineWidth(2);
- //    etSumRatesHW->SetLineWidth(2);
- //    etSumRatesEmu->GetXaxis()->SetTitle("L1 ETT Threshold (GeV)");
- //    etSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //etSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //etSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_etSum = new TCanvas("cEMU_etSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// etSumRatesEmu->Draw();
-	// etSumRatesHW->Draw("same");
-	// string etSumRatesEmuSaveName = dirName + "etSumRatesEmuHW.pdf";
-	// cEMU_etSum->SaveAs( etSumRatesEmuSaveName.c_str() );
-	// cEMU_etSum->Close();
-
-	// TH1F * metSumRatesEmu = (TH1F*)f->Get("metSumRates_emu");
-	// 	TH1F * metSumRatesHW = (TH1F*)f->Get("metSumRates_hw");
- //    metSumRatesEmu->SetLineColor(2);
- //    metSumRatesEmu->SetLineWidth(2);
- //    metSumRatesHW->SetLineWidth(2);
- //    metSumRatesEmu->GetXaxis()->SetTitle("L1 MET Threshold (GeV)");
- //    metSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //metSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //metSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_metSum = new TCanvas("cEMU_metSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// metSumRatesEmu->Draw();
-	// metSumRatesHW->Draw("same");
-	// string metSumRatesEmuSaveName = dirName + "metSumRatesEmuHW.pdf";
-	// cEMU_metSum->SaveAs( metSumRatesEmuSaveName.c_str() );				
-	// cEMU_metSum->Close();
+	    if (numberOfHistos==6){
+	  	h1->SetLineColor(histoColour1);
+	    h1->SetLineWidth(2);
+	    h1->SetLineStyle(histoStyle1);
+        h1->GetXaxis()->SetTitleOffset(1.2);
+        h1->GetYaxis()->SetTitleOffset(1.2);
+	    h1->GetXaxis()->SetTitle(xaxisName.c_str());
+	    h1->GetYaxis()->SetTitle(yaxisName.c_str());
+	    h1->Draw("same");
+      	h2->SetLineColor(histoColour2);
+	    h2->SetLineWidth(3);
+	    h2->SetLineStyle(histoStyle2);
+	    h2->Draw("same");
+      	h3->SetLineColor(histoColour3);
+	    h3->SetLineWidth(2);
+	    h3->SetLineStyle(histoStyle3);
+	    h3->Draw("same");
+      	h4->SetLineColor(histoColour4);
+	    h4->SetLineWidth(3);
+	    h4->SetLineStyle(histoStyle4);
+	    h4->Draw("same");
+	    h5->SetLineColor(histoColour5);
+	    h5->SetLineWidth(2);
+	    h5->SetLineStyle(histoStyle5);
+	    h5->Draw("same");
+      	h6->SetLineColor(histoColour6);
+	    h6->SetLineWidth(3);
+	    h6->SetLineStyle(histoStyle6);
+	    h6->Draw("same");
+	    if (legendOn){
+		    leg->AddEntry(h1, legName1.c_str(), "L");
+	      	leg->AddEntry(h2, legName2.c_str(), "L");
+	      	leg->AddEntry(h3, legName3.c_str(), "L");
+	      	leg->AddEntry(h4, legName4.c_str(), "L");
+	 		leg->AddEntry(h5, legName5.c_str(), "L");
+	      	leg->AddEntry(h6, legName6.c_str(), "L");
+		    leg->Draw();
+		}
+	}
 
 
 
 
+	if (autoPosition){
+    	textStartXPos = h1->GetXaxis()->GetBinCenter(1);
+    	if (logOn) textStartYPos = 3*(h1->GetMaximum());
+    	else textStartYPos = 1.1*(h1->GetMaximum());
 
+	}
 
+ 	TLatex *texl = new TLatex(textStartXPos,textStartYPos,additionalText.c_str());
+  	texl->SetTextSize(0.035);
+  	if (additionalTextOn) texl->Draw("same"); 
 
+	string saveName = dirName + outputFileName +".pdf";
+	//c->SaveAs( saveName.c_str() );
+	//c->Close();
 
-
- //    TH1F * singleJetRatesEmu = (TH1F*)f->Get("singleJetRates_emu");
- //    singleJetRatesEmu->SetLineColor(2);
- //    singleJetRatesEmu->SetLineWidth(2);
- //    singleJetRatesEmu->GetXaxis()->SetTitle("single L1emu Jet E_{T} Threshold (GeV)");
- //    singleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //singleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet1 = new TCanvas("cEMU_jet1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleJetRatesEmu->Draw();
-	// string singleJetRatesEmuSaveName = dirName + "singleJetRatesEmu.pdf";
-	// cEMU_jet1->SaveAs( singleJetRatesEmuSaveName.c_str() );
-	// cEMU_jet1->Close();
-
-	// TH1F * doubleJetRatesEmu = (TH1F*)f->Get("doubleJetRates_emu");
- //    doubleJetRatesEmu->SetLineColor(2);
- //    doubleJetRatesEmu->SetLineWidth(2);
- //    doubleJetRatesEmu->GetXaxis()->SetTitle("double L1emu Jet E_{T} Threshold (GeV)");
- //    doubleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //doubleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //doubleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet2 = new TCanvas("cEMU_jet2","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// doubleJetRatesEmu->Draw();
-	// string doubleJetRatesEmuSaveName = dirName + "doubleJetRatesEmu.pdf";
-	// cEMU_jet2->SaveAs( doubleJetRatesEmuSaveName.c_str() );
-	// cEMU_jet2->Close();
-
-	// TH1F * tripleJetRatesEmu = (TH1F*)f->Get("tripleJetRates_emu");
- //    tripleJetRatesEmu->SetLineColor(2);
- //    tripleJetRatesEmu->SetLineWidth(2);
- //    tripleJetRatesEmu->GetXaxis()->SetTitle("triple L1emu Jet E_{T} Threshold (GeV)");
- //    tripleJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tripleJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //tripleJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet3 = new TCanvas("cEMU_jet3","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tripleJetRatesEmu->Draw();
-	// string tripleJetRatesEmuSaveName = dirName + "tripleJetRatesEmu.pdf";
-	// cEMU_jet3->SaveAs( tripleJetRatesEmuSaveName.c_str() );
-	// cEMU_jet3->Close();
-
-	// TH1F * quadJetRatesEmu = (TH1F*)f->Get("quadJetRates_emu");
- //    quadJetRatesEmu->SetLineColor(2);
- //    quadJetRatesEmu->SetLineWidth(2);
- //    quadJetRatesEmu->GetXaxis()->SetTitle("quad L1emu Jet E_{T} Threshold (GeV)");
- //    quadJetRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //quadJetRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //quadJetRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_jet4 = new TCanvas("cEMU_jet4","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// quadJetRatesEmu->Draw();
-	// string quadJetRatesEmuSaveName = dirName + "quadJetRatesEmu.pdf";
-	// cEMU_jet4->SaveAs( quadJetRatesEmuSaveName.c_str() );
-	// cEMU_jet4->Close();
-
-	// TH1F * singleEgRatesEmu = (TH1F*)f->Get("singleEgRates_emu");
- //    singleEgRatesEmu->SetLineColor(2);
- //    singleEgRatesEmu->SetLineWidth(2);
- //    singleEgRatesEmu->GetXaxis()->SetTitle("single L1emu EG E_{T} Threshold (GeV)");
- //    singleEgRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleEgRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //singleEgRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_eg1 = new TCanvas("cEMU_eg1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleEgRatesEmu->Draw();
-	// string singleEgRatesEmuSaveName = dirName + "singleEgRatesEmu.pdf";
-	// cEMU_eg1->SaveAs( singleEgRatesEmuSaveName.c_str() );
-	// cEMU_eg1->Close();
-
-	// TH1F * doubleEgRatesEmu = (TH1F*)f->Get("doubleEgRates_emu");
- //    doubleEgRatesEmu->SetLineColor(2);
- //    doubleEgRatesEmu->SetLineWidth(2);
- //    doubleEgRatesEmu->GetXaxis()->SetTitle("double L1emu EG E_{T} Threshold (GeV)");
- //    doubleEgRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //doubleEgRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //doubleEgRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_eg2 = new TCanvas("cEMU_eg2","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// doubleEgRatesEmu->Draw();
-	// string doubleEgRatesEmuSaveName = dirName + "doubleEgRatesEmu.pdf";
-	// cEMU_eg2->SaveAs( doubleEgRatesEmuSaveName.c_str() );
-	// cEMU_eg2->Close();
-
-	// TH1F * tauRatesEmu = (TH1F*)f->Get("tauRates_emu");
- //    tauRatesEmu->SetLineColor(2);
- //    tauRatesEmu->SetLineWidth(2);
- //    tauRatesEmu->GetXaxis()->SetTitle("L1emu tau E_{T} Threshold (GeV)");
- //    tauRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tauRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //tauRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_tau = new TCanvas("cEMU_tau","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tauRatesEmu->Draw();
-	// string tauRatesEmuSaveName = dirName + "tauRatesEmu.pdf";
-	// cEMU_tau->SaveAs( tauRatesEmuSaveName.c_str() );
-	// cEMU_tau->Close();
-
-	// TH1F * htSumRatesEmu = (TH1F*)f->Get("htSumRates_emu");
- //    htSumRatesEmu->SetLineColor(2);
- //    htSumRatesEmu->SetLineWidth(2);
- //    htSumRatesEmu->GetXaxis()->SetTitle("L1emu HTT Threshold (GeV)");
- //    htSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //htSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //htSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_htSum = new TCanvas("cEMU_htSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// htSumRatesEmu->Draw();
-	// string htSumRatesEmuSaveName = dirName + "htSumRatesEmu.pdf";
-	// cEMU_htSum->SaveAs( htSumRatesEmuSaveName.c_str() );
-	// cEMU_htSum->Close();
-
-	// TH1F * mhtSumRatesEmu = (TH1F*)f->Get("mhtSumRates_emu");
- //    mhtSumRatesEmu->SetLineColor(2);
- //    mhtSumRatesEmu->SetLineWidth(2);
- //    mhtSumRatesEmu->GetXaxis()->SetTitle("L1emu MHT Threshold (GeV)");
- //    mhtSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //mhtSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //mhtSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_mhtSum = new TCanvas("cEMU_mhtSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// mhtSumRatesEmu->Draw();
-	// string mhtSumRatesEmuSaveName = dirName + "mhtSumRatesEmu.pdf";
-	// cEMU_mhtSum->SaveAs( mhtSumRatesEmuSaveName.c_str() );
-	// cEMU_mhtSum->Close();
-
-	// TH1F * etSumRatesEmu = (TH1F*)f->Get("etSumRates_emu");
- //    etSumRatesEmu->SetLineColor(2);
- //    etSumRatesEmu->SetLineWidth(2);
- //    etSumRatesEmu->GetXaxis()->SetTitle("L1emu ETT Threshold (GeV)");
- //    etSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //etSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //etSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_etSum = new TCanvas("cEMU_etSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// etSumRatesEmu->Draw();
-	// string etSumRatesEmuSaveName = dirName + "etSumRatesEmu.pdf";
-	// cEMU_etSum->SaveAs( etSumRatesEmuSaveName.c_str() );
-	// cEMU_etSum->Close();
-
-	// TH1F * metSumRatesEmu = (TH1F*)f->Get("metSumRates_emu");
- //    metSumRatesEmu->SetLineColor(2);
- //    metSumRatesEmu->SetLineWidth(2);
- //    metSumRatesEmu->GetXaxis()->SetTitle("L1emu MET Threshold (GeV)");
- //    metSumRatesEmu->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //metSumRatesEmu->GetXaxis()->SetRangeUser(0,300);
-	// //metSumRatesEmu->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cEMU_metSum = new TCanvas("cEMU_metSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// metSumRatesEmu->Draw();
-	// string metSumRatesEmuSaveName = dirName + "metSumRatesEmu.pdf";
-	// cEMU_metSum->SaveAs( metSumRatesEmuSaveName.c_str() );				
-	// cEMU_metSum->Close();
-
-
-
-
- //    TH1F * singleJetRatesHW = (TH1F*)f->Get("singleJetRates_hw");
- //    singleJetRatesHW->SetLineColor(2);
- //    singleJetRatesHW->SetLineWidth(2);
- //    singleJetRatesHW->GetXaxis()->SetTitle("single L1HW Jet E_{T} Threshold (GeV)");
- //    singleJetRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleJetRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //singleJetRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_jet1 = new TCanvas("cHW_jet1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleJetRatesHW->Draw();
-	// string singleJetRatesHWSaveName = dirName + "singleJetRatesHW.pdf";
-	// cHW_jet1->SaveAs( singleJetRatesHWSaveName.c_str() );
-	// cHW_jet1->Close();
-
-	// TH1F * doubleJetRatesHW = (TH1F*)f->Get("doubleJetRates_hw");
- //    doubleJetRatesHW->SetLineColor(2);
- //    doubleJetRatesHW->SetLineWidth(2);
- //    doubleJetRatesHW->GetXaxis()->SetTitle("double L1HW Jet E_{T} Threshold (GeV)");
- //    doubleJetRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //doubleJetRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //doubleJetRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_jet2 = new TCanvas("cHW_jet2","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// doubleJetRatesHW->Draw();
-	// string doubleJetRatesHWSaveName = dirName + "doubleJetRatesHW.pdf";
-	// cHW_jet2->SaveAs( doubleJetRatesHWSaveName.c_str() );
-	// cHW_jet2->Close();
-
-	// TH1F * tripleJetRatesHW = (TH1F*)f->Get("tripleJetRates_hw");
- //    tripleJetRatesHW->SetLineColor(2);
- //    tripleJetRatesHW->SetLineWidth(2);
- //    tripleJetRatesHW->GetXaxis()->SetTitle("triple L1HW Jet E_{T} Threshold (GeV)");
- //    tripleJetRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tripleJetRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //tripleJetRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_jet3 = new TCanvas("cHW_jet3","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tripleJetRatesHW->Draw();
-	// string tripleJetRatesHWSaveName = dirName + "tripleJetRatesHW.pdf";
-	// cHW_jet3->SaveAs( tripleJetRatesHWSaveName.c_str() );
-	// cHW_jet3->Close();
-
-	// TH1F * quadJetRatesHW = (TH1F*)f->Get("quadJetRates_hw");
- //    quadJetRatesHW->SetLineColor(2);
- //    quadJetRatesHW->SetLineWidth(2);
- //    quadJetRatesHW->GetXaxis()->SetTitle("quad L1HW Jet E_{T} Threshold (GeV)");
- //    quadJetRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //quadJetRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //quadJetRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_jet4 = new TCanvas("cHW_jet4","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// quadJetRatesHW->Draw();
-	// string quadJetRatesHWSaveName = dirName + "quadJetRatesHW.pdf";
-	// cHW_jet4->SaveAs( quadJetRatesHWSaveName.c_str() );
-	// cHW_jet4->Close();
-
-	// TH1F * singleEgRatesHW = (TH1F*)f->Get("singleEgRates_hw");
- //    singleEgRatesHW->SetLineColor(2);
- //    singleEgRatesHW->SetLineWidth(2);
- //    singleEgRatesHW->GetXaxis()->SetTitle("single L1HW EG E_{T} Threshold (GeV)");
- //    singleEgRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //singleEgRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //singleEgRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_eg1 = new TCanvas("cHW_eg1","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// singleEgRatesHW->Draw();
-	// string singleEgRatesHWSaveName = dirName + "singleEgRatesHW.pdf";
-	// cHW_eg1->SaveAs( singleEgRatesHWSaveName.c_str() );
-	// cHW_eg1->Close();
-
-	// TH1F * doubleEgRatesHW = (TH1F*)f->Get("doubleEgRates_hw");
- //    doubleEgRatesHW->SetLineColor(2);
- //    doubleEgRatesHW->SetLineWidth(2);
- //    doubleEgRatesHW->GetXaxis()->SetTitle("double L1HW EG E_{T} Threshold (GeV)");
- //    doubleEgRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //doubleEgRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //doubleEgRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_eg2 = new TCanvas("cHW_eg2","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// doubleEgRatesHW->Draw();
-	// string doubleEgRatesHWSaveName = dirName + "doubleEgRatesHW.pdf";
-	// cHW_eg2->SaveAs( doubleEgRatesHWSaveName.c_str() );
-	// cHW_eg2->Close();
-
-	// TH1F * tauRatesHW = (TH1F*)f->Get("tauRates_hw");
- //    tauRatesHW->SetLineColor(2);
- //    tauRatesHW->SetLineWidth(2);
- //    tauRatesHW->GetXaxis()->SetTitle("L1HW tau E_{T} Threshold (GeV)");
- //    tauRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //tauRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //tauRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_tau = new TCanvas("cHW_tau","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// tauRatesHW->Draw();
-	// string tauRatesHWSaveName = dirName + "tauRatesHW.pdf";
-	// cHW_tau->SaveAs( tauRatesHWSaveName.c_str() );
-	// cHW_tau->Close();
-
-	// TH1F * htSumRatesHW = (TH1F*)f->Get("htSumRates_hw");
- //    htSumRatesHW->SetLineColor(2);
- //    htSumRatesHW->SetLineWidth(2);
- //    htSumRatesHW->GetXaxis()->SetTitle("L1HW HTT Threshold (GeV)");
- //    htSumRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //htSumRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //htSumRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_htSum = new TCanvas("cHW_htSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// htSumRatesHW->Draw();
-	// string htSumRatesHWSaveName = dirName + "htSumRatesHW.pdf";
-	// cHW_htSum->SaveAs( htSumRatesHWSaveName.c_str() );
-	// cHW_htSum->Close();
-
-	// TH1F * mhtSumRatesHW = (TH1F*)f->Get("mhtSumRates_hw");
- //    mhtSumRatesHW->SetLineColor(2);
- //    mhtSumRatesHW->SetLineWidth(2);
- //    mhtSumRatesHW->GetXaxis()->SetTitle("L1HW MHT Threshold (GeV)");
- //    mhtSumRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //mhtSumRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //mhtSumRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_mhtSum = new TCanvas("cHW_mhtSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// mhtSumRatesHW->Draw();
-	// string mhtSumRatesHWSaveName = dirName + "mhtSumRatesHW.pdf";
-	// cHW_mhtSum->SaveAs( mhtSumRatesHWSaveName.c_str() );
-	// cHW_mhtSum->Close();
-
-	// TH1F * etSumRatesHW = (TH1F*)f->Get("etSumRates_hw");
- //    etSumRatesHW->SetLineColor(2);
- //    etSumRatesHW->SetLineWidth(2);
- //    etSumRatesHW->GetXaxis()->SetTitle("L1HW ETT Threshold (GeV)");
- //    etSumRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //etSumRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //etSumRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_etSum = new TCanvas("cHW_etSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// etSumRatesHW->Draw();
-	// string etSumRatesHWSaveName = dirName + "etSumRatesHW.pdf";
-	// cHW_etSum->SaveAs( etSumRatesHWSaveName.c_str() );
-	// cHW_etSum->Close();
-
-	// TH1F * metSumRatesHW = (TH1F*)f->Get("metSumRates_hw");
- //    metSumRatesHW->SetLineColor(2);
- //    metSumRatesHW->SetLineWidth(2);
- //    metSumRatesHW->GetXaxis()->SetTitle("L1HW MET Threshold (GeV)");
- //    metSumRatesHW->GetYaxis()->SetTitle("Rate (Hz)");    
-	// //metSumRatesHW->GetXaxis()->SetRangeUser(0,300);
-	// //metSumRatesHW->GetYaxis()->SetRangeUser(10,200000);
-	// TCanvas * cHW_metSum = new TCanvas("cHW_metSum","",650,600);
-	// gPad->SetLogy();	
-	// gStyle->SetOptStat(0);
-	// metSumRatesHW->Draw();
-	// string metSumRatesHWSaveName = dirName + "metSumRatesHW.pdf";
-	// cHW_metSum->SaveAs( metSumRatesHWSaveName.c_str() );				
-	// cHW_metSum->Close();
-
+     return;
 }

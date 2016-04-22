@@ -181,7 +181,7 @@ void jets_data(){
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
   string dirName = "output_jets/run269224_zeroBias_v34p0_HW/";
-  string outputFilename = dirName + "histos.root";
+  string outputFilename = dirName + "histos_extra.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -282,6 +282,11 @@ void jets_data(){
   TH1F * hdPhi_central = new TH1F("hdPhi_central", ";#phi_{RECO} - #phi_{L1}", 100, -0.5, 0.5);
   TH1F * hdEta_central = new TH1F("hdEta_central", ";#eta_{RECO} - #eta_{L1}", 100, -0.5, 0.5);
   TH1F * hdR_central = new TH1F("hdR_central", ";dR_{RECO - L1}", 100, 0, 1.0);
+
+  TH2F * hPosScat = new TH2F("hPosScat", "", 500, -0.5, 0.5, 500, -0.5, 0.5);
+  hPosScat->GetXaxis()->SetTitle("#phi_{PF} - #phi_{L1}");
+  hPosScat->GetYaxis()->SetTitle("#eta_{PF} - #eta_{L1}");
+
   TH1F * hdET_central = new TH1F("hdET_central", ";(ET_{L1} - ET_{RECO})/ET_{RECO}", 100, -2.0, 4.0);
   TH2F * hETS_central = new TH2F("hETS_central", "", 500, 0, 250, 500, 0, 250);
   hETS_central->GetXaxis()->SetTitle("RECO E_{T} (GeV)");
@@ -523,6 +528,8 @@ void jets_data(){
         hdPhi_central->Fill(dPhi);
         hdEta_central->Fill(dEta);
         hdR_central->Fill(dR_min);
+        hPosScat->Fill(dPhi, dEta);
+
         hdET_central->Fill( (l1jet.et[k_min]-recojet.et[centralIndex])/recojet.et[centralIndex] ); 
         hETS_central->Fill(recojet.et[centralIndex], l1jet.et[k_min] );
         
@@ -760,6 +767,7 @@ void jets_data(){
   hdR_central->Write();
   hdET_central->Write();
   hETS_central->Write();
+hPosScat->Write();
 
   hdPhi_central_WAC->Write();
   hdEta_central_WAC->Write();

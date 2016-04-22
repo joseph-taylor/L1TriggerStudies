@@ -225,15 +225,15 @@ void plot_turnOn(string dirName, string histoType){
   TEfficiency * hT176e = new TEfficiency(*hnum176,*hdenALL);
   TEfficiency * hT200e = new TEfficiency(*hnum200,*hdenALL);
 
-//trial fitting...
-// TF1* f1 = new TF1("f1","[0]*TMath::Erf((x-[1])/[2])",0,150);
-// f1->SetParameters(1, 50., 10.);
-// f1->SetLineColor(1);
-// hT36e->Fit(f1);
+// // trial fitting...
+TF1* f1 = new TF1("f1","[0]*TMath::Erf((x-[1])/[2])",0,150);
+f1->SetParameters(0.9, 25., 10.);
+f1->SetLineColor(1);
+hT36->Fit(f1);
 
 // // //trial fitting...
 // TF1* f2 = new TF1("f2","[0]*TMath::Erf((x-[1])/[2])",0,400);
-// f2->SetParameters(1, 100., 10.);
+// f2->SetParameters(0.95, 35., 30.);
 // f1->SetLineColor(2);
 // hT52e->Fit(f2);
 
@@ -312,34 +312,34 @@ void plot_turnOn(string dirName, string histoType){
 
 
 //usually do this with the histogram object...
-  hT36->GetXaxis()->SetRangeUser(0,150); //usually 400
-  hT36->GetYaxis()->SetRangeUser(0,1);
-  hT36->GetYaxis()->SetTitleOffset(1.5);
-  hT36->GetXaxis()->SetTitleOffset(1.0);
+  // hT36->GetXaxis()->SetRangeUser(0,150); //usually 400
+  // hT36->GetYaxis()->SetRangeUser(0,1);
+  // hT36->GetYaxis()->SetTitleOffset(1.5);
+  // hT36->GetXaxis()->SetTitleOffset(1.0);
 
-  hT36->Draw("P, same");
-  hT52->Draw("P, same");
-  hT68->Draw("P, same");
-  hT92->Draw("P, same");
+  hT36->Draw("AP, same");
+  // hT52->Draw("P, same");
+  // hT68->Draw("P, same");
+  // hT92->Draw("P, same");
   // hT128->Draw("C, same");
   // hT176->Draw("C, same");
   //hT200->Draw("C, same");
 
-  hT36e->Draw("same");
-  hT52e->Draw("same");
-  hT68e->Draw("same");
-  hT92e->Draw("same");
+  // hT36e->Draw("AP");
+  // hT52e->Draw("same");
+  // hT68e->Draw("same");
+  // hT92e->Draw("same");
   // hT128e->Draw("same");
   // hT176e->Draw("same");
   //hT200e->Draw("same");
 
   gStyle->SetOptStat(0);
-  TLegend * leg = new TLegend(0.7, 0.15, 0.9, 0.48); //(xmin, ymin, xmax, ymax)
-  leg->SetLineColor(0);
-    leg->AddEntry(hT36e, "L1>36GeV", "L");
-  leg->AddEntry(hT52e, "L1>52GeV", "L");
-  leg->AddEntry(hT68e, "L1>68GeV", "L");
-  leg->AddEntry(hT92e, "L1>92GeV", "L");
+  // TLegend * leg = new TLegend(0.7, 0.15, 0.9, 0.48); //(xmin, ymin, xmax, ymax)
+  // leg->SetLineColor(0);
+  //   leg->AddEntry(hT36e, "L1>36GeV", "L");
+  // leg->AddEntry(hT52e, "L1>52GeV", "L");
+  // leg->AddEntry(hT68e, "L1>68GeV", "L");
+  // leg->AddEntry(hT92e, "L1>92GeV", "L");
   // leg->AddEntry(hT36, "L1>36GeV", "L");
   // leg->AddEntry(hT52, "L1>52GeV", "L");
   // leg->AddEntry(hT68, "L1>68GeV", "L");
@@ -347,14 +347,14 @@ void plot_turnOn(string dirName, string histoType){
   // leg->AddEntry(hT128, "L1>128GeV", "L");
   // leg->AddEntry(hT176, "L1>176GeV", "L");
   //leg->AddEntry(hT200, "L1>200GeV", "L");
-  leg->Draw();
+  //leg->Draw();
 
- TLatex *texl = new TLatex(0.1,1.05,"CMS Preliminary, #sqrt{s}=13 TeV, ZeroBias run269224");
-  texl->SetTextSize(0.035);
-  texl->Draw("same"); 
+ // TLatex *texl = new TLatex(0.1,1.05,"CMS Preliminary, #sqrt{s}=13 TeV, ZeroBias run269224");
+ //  texl->SetTextSize(0.035);
+ //  texl->Draw("same"); 
 
  string saveName = dirName + "turnOn_" + histoType + ".pdf";
- c->SaveAs( saveName.c_str() );
- c->Close();
+ //c->SaveAs( saveName.c_str() );
+  //c->Close();
 
 }//closes the 'plot_turnOn' function

@@ -7,11 +7,24 @@
 #include <string>
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
+/*
+when running:
+select whether you want emu, hw, or both
+for the run of interest select numBunches and the runLuminosity
+setup the output file path
+feed in the correct files
+
+run269224: numBunch=2 runLum=0.00037
+run259721: numBunch=517 runLum= 
+
+*/
+
+
 // todo: put errors in rates
 
 void rates_trial(){
   
-  bool hwOn = true;   //are we using data from hardware?
+  bool hwOn = false;   //are we using data from hardware?
   bool emuOn = true;  //are we using data from emulator?
 
   if (hwOn==false && emuOn==false){
@@ -19,11 +32,12 @@ void rates_trial(){
     return;
   }
 
-  double numBunch = 2; //the number of bunches used for the run of interest
+  double numBunch = 517; //the number of bunches used for the run of interest
+  double runLum = 0.1527; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
-  double runLum = 0.00037; //luminosity of the run of interest (*10^34)
 
-  string outputFilename = "output_rates/run269224_zeroBias_v34p0_update/histos.root";
+
+  string outputFilename = "output_rates/ZeroBiasReReco_run259721_v37p0/histos.root";
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE: not going to overwrite file " << outputFilename << endl;
@@ -31,16 +45,11 @@ void rates_trial(){
   }
 
   // make trees
+  cout << "Loading up the TChain..." << endl;
   TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_4/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_5/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
+    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v37p0/Run2015_1/*.root");
+    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v37p0/Run2015_2/*.root");
   }
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1emu_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   treeL1emu->SetBranchAddress("L1Upgrade", &l1emu_);
@@ -151,7 +160,9 @@ void rates_trial(){
 
 
   // get number of entries
-  Long64_t nentries = treeL1emu->GetEntries();  
+  Long64_t nentries;
+  if (emuOn) nentries = treeL1emu->GetEntries();
+  else nentries = treeL1hw->GetEntries();
   /////////////////////////////////
   // loop through all the entries//
   /////////////////////////////////
@@ -265,28 +276,32 @@ void rates_trial(){
       double jetEt_2 = 0;
       double jetEt_3 = 0;
       double jetEt_4 = 0;
-      //jet's in hardware are not ordered!!
-      for (UInt_t c=0; c<l1hw_->nJets; c++){
-        if (l1hw_->jetEt[c] >= jetEt_1){
-          jetEt_4 = jetEt_3;
-          jetEt_3 = jetEt_2;
-          jetEt_2 = jetEt_1;
-          jetEt_1 = l1hw_->jetEt[c];
-        }
-        else if (l1hw_->jetEt[c] < jetEt_1 && l1hw_->jetEt[c] > jetEt_2){
-          jetEt_4 = jetEt_3;
-          jetEt_3 = jetEt_2;      
-          jetEt_2 = l1hw_->jetEt[c];
-        }
-        else if (l1hw_->jetEt[c] < jetEt_2 && l1hw_->jetEt[c] > jetEt_3){
-          jetEt_4 = jetEt_3;     
-          jetEt_3 = l1hw_->jetEt[c];
-        }
-        else if (l1hw_->jetEt[c] < jetEt_3 && l1hw_->jetEt[c] > jetEt_4){   
-          jetEt_4 = l1hw_->jetEt[c];
-        }
+      if (l1hw_->nJets>0) jetEt_1 = l1hw_->jetEt[0];
+      if (l1hw_->nJets>1) jetEt_2 = l1hw_->jetEt[1];
+      if (l1hw_->nJets>2) jetEt_3 = l1hw_->jetEt[2];
+      if (l1hw_->nJets>3) jetEt_4 = l1hw_->jetEt[3];    
+      // //jet's in hardware are not ordered!!
+      // for (UInt_t c=0; c<l1hw_->nJets; c++){
+      //   if (l1hw_->jetEt[c] >= jetEt_1){
+      //     jetEt_4 = jetEt_3;
+      //     jetEt_3 = jetEt_2;
+      //     jetEt_2 = jetEt_1;
+      //     jetEt_1 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_1 && l1hw_->jetEt[c] > jetEt_2){
+      //     jetEt_4 = jetEt_3;
+      //     jetEt_3 = jetEt_2;      
+      //     jetEt_2 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_2 && l1hw_->jetEt[c] > jetEt_3){
+      //     jetEt_4 = jetEt_3;     
+      //     jetEt_3 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_3 && l1hw_->jetEt[c] > jetEt_4){   
+      //     jetEt_4 = l1hw_->jetEt[c];
+      //   }
 
-      }
+      // }
         
       double egEt_1 = 0;
       double egEt_2 = 0;
