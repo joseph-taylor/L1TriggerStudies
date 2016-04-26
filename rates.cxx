@@ -40,8 +40,9 @@ void rates(){
     return;
   }
 
-  TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   // make trees
+  cout << "Loading up the TChain..." << endl;
+  TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
     treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
     treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
@@ -53,7 +54,7 @@ void rates(){
     treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
   }
 
-  TChain * treeL1hw = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
+  TChain * treeL1hw = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
     treeL1hw->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
     treeL1hw->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
@@ -166,25 +167,27 @@ void rates(){
   TH1F* leadingTauDist_hw = new TH1F("leadingTauDist_hw", axD.c_str(), nTauBins, tauLo, tauHi);
 
   // get number of entries
-  Long64_t nentries = treeL1emu->GetEntries();  
+  Long64_t nentries;
+  if (emuOn) nentries = treeL1emu->GetEntries();
+  else nentries = treeL1hw->GetEntries();
   /////////////////////////////////
   // loop through all the entries//
   /////////////////////////////////
   for (Long64_t jentry=0; jentry<nentries; jentry++){
     if((jentry%10000)==0) std::cout << "Done " << jentry  << " events of " << nentries << std::endl;
 
-    treeL1emu->GetEntry(jentry);
     //do routine for L1 emulator quantites
     if (emuOn){
+      treeL1emu->GetEntry(jentry);
       // get jetEt*, egEt*, tauEt, htSum, mhtSum, etSum, metSum
       double jetEt_1 = 0;
       double jetEt_2 = 0;
       double jetEt_3 = 0;
       double jetEt_4 = 0;
       if (l1emu_->nJets>0) jetEt_1 = l1emu_->jetEt[0];
-      if (l1emu_->nJets>1) jetEt_2 = l1emu_->jetEt[0];
-      if (l1emu_->nJets>2) jetEt_3 = l1emu_->jetEt[0];
-      if (l1emu_->nJets>3) jetEt_4 = l1emu_->jetEt[0];       
+      if (l1emu_->nJets>1) jetEt_2 = l1emu_->jetEt[1];
+      if (l1emu_->nJets>2) jetEt_3 = l1emu_->jetEt[2];
+      if (l1emu_->nJets>3) jetEt_4 = l1emu_->jetEt[3];       
       
       double egEt_1 = 0;
       double egEt_2 = 0;
@@ -194,7 +197,7 @@ void rates(){
           egEt_2 = egEt_1;
           egEt_1 = l1emu_->egEt[c];
         }
-        if (l1emu_->egEt[c] < egEt_1 && l1emu_->egEt[c] > egEt_2){
+        else if (l1emu_->egEt[c] < egEt_1 && l1emu_->egEt[c] > egEt_2){
           egEt_2 = l1emu_->egEt[c];
         }
       }
@@ -271,20 +274,41 @@ void rates(){
       }  
     }// closes if 'emuOn' is true
 
-treeL1hw->GetEntry(jentry);
+
     //do routine for L1 hardware quantities
     if (hwOn){
-      // treeL1hw->GetEntry(jentry);
+      treeL1hw->GetEntry(jentry);
       // get jetEt*, egEt*, tauEt, htSum, mhtSum, etSum, metSum
       double jetEt_1 = 0;
       double jetEt_2 = 0;
       double jetEt_3 = 0;
       double jetEt_4 = 0;
       if (l1hw_->nJets>0) jetEt_1 = l1hw_->jetEt[0];
-      if (l1hw_->nJets>1) jetEt_2 = l1hw_->jetEt[0];
-      if (l1hw_->nJets>2) jetEt_3 = l1hw_->jetEt[0];
-      if (l1hw_->nJets>3) jetEt_4 = l1hw_->jetEt[0];    
-      
+      if (l1hw_->nJets>1) jetEt_2 = l1hw_->jetEt[1];
+      if (l1hw_->nJets>2) jetEt_3 = l1hw_->jetEt[2];
+      if (l1hw_->nJets>3) jetEt_4 = l1hw_->jetEt[3];    
+      // //jet's in hardware are not ordered!!
+      // for (UInt_t c=0; c<l1hw_->nJets; c++){
+      //   if (l1hw_->jetEt[c] >= jetEt_1){
+      //     jetEt_4 = jetEt_3;
+      //     jetEt_3 = jetEt_2;
+      //     jetEt_2 = jetEt_1;
+      //     jetEt_1 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_1 && l1hw_->jetEt[c] > jetEt_2){
+      //     jetEt_4 = jetEt_3;
+      //     jetEt_3 = jetEt_2;      
+      //     jetEt_2 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_2 && l1hw_->jetEt[c] > jetEt_3){
+      //     jetEt_4 = jetEt_3;     
+      //     jetEt_3 = l1hw_->jetEt[c];
+      //   }
+      //   else if (l1hw_->jetEt[c] < jetEt_3 && l1hw_->jetEt[c] > jetEt_4){   
+      //     jetEt_4 = l1hw_->jetEt[c];
+      //   }
+      // }
+
       double egEt_1 = 0;
       double egEt_2 = 0;
       //EG pt's are not given in descending order
@@ -293,7 +317,7 @@ treeL1hw->GetEntry(jentry);
           egEt_2 = egEt_1;
           egEt_1 = l1hw_->egEt[c];
         }
-        if (l1hw_->egEt[c] < egEt_1 && l1hw_->egEt[c] > egEt_2){
+        else if (l1hw_->egEt[c] < egEt_1 && l1hw_->egEt[c] > egEt_2){
           egEt_2 = l1hw_->egEt[c];
         }
       }
@@ -389,7 +413,7 @@ treeL1hw->GetEntry(jentry);
     etSumRates_emu->Scale(norm);
     metSumRates_emu->Scale(norm);
 
-    //set the errors
+    //set the errors for the rates
     //want error -> error * sqrt(norm)
 
     singleJetRates_emu->Write();

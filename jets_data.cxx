@@ -181,7 +181,7 @@ void jets_data(){
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
   string dirName = "output_jets/run269224_zeroBias_v34p0_HW/";
-  string outputFilename = dirName + "histos_extra.root";
+  string outputFilename = dirName + "histos_extra2.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -219,7 +219,6 @@ void jets_data(){
   metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
   metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
   metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
-
 
   Int_t nevent = (Int_t)recoTree->GetEntries();
 

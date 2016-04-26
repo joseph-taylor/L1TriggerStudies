@@ -13,7 +13,7 @@
 /* 
 How to use:
 For simple running...just change lines
-63: the set type of plots you want to make
+63: the set type of plots you want to make (rates, jets, esums, custom)
 69: the path to the .root file with the histograms
 */
 
@@ -351,7 +351,42 @@ void makePlots(){
 		plot_ve1.insertLegend(legIconNames_ve1, 0.65, 0.85, 0.65, 0.85);
 		plot_ve1.plotAndSave(3, directoryName.c_str(), "jetEfficiencyTurnOns_central.pdf");
 
-	}
+		rootPlotMaker plot_ve2;
+	    vector<string> histoNums_ve2;
+	    histoNums_ve2.push_back("hnum36_hf");
+	    histoNums_ve2.push_back("hnum52_hf");
+	    histoNums_ve2.push_back("hnum68_hf");   
+	    histoNums_ve2.push_back("hnum92_hf"); 
+	    histoNums_ve2.push_back("hnum128_hf");
+	    histoNums_ve2.push_back("hnum176_hf"); 
+	    histoNums_ve2.push_back("hnum200_hf"); 
+	    string histoDen_ve2 = "hden_hf";
+	    vector<string> histoEffs_ve2;
+	    histoEffs_ve2.push_back("hT36_hf");
+	    histoEffs_ve2.push_back("hT52_hf");
+	    histoEffs_ve2.push_back("hT68_hf");   
+	    histoEffs_ve2.push_back("hT92_hf"); 
+	    histoEffs_ve2.push_back("hT128_hf");
+	    histoEffs_ve2.push_back("hT176_hf"); 
+	    histoEffs_ve2.push_back("hT200_hf");
+		vector<string> legIconNames_ve2;
+		legIconNames_ve2.push_back("L1jet_p_{T}>36");
+		legIconNames_ve2.push_back("L1jet_p_{T}>52");
+		legIconNames_ve2.push_back("L1jet_p_{T}>68");
+		legIconNames_ve2.push_back("L1jet_p_{T}>92");
+		legIconNames_ve2.push_back("L1jet_p_{T}>128");
+		legIconNames_ve2.push_back("L1jet_p_{T}>176");
+		legIconNames_ve2.push_back("L1jet_p_{T}>200");
+		plot_ve2.loadEfficiencies(path,histoNums_ve2,histoDen_ve2,histoEffs_ve2,histogramLineWidths_allSize2,
+						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_ve2.insertLegend(legIconNames_ve2, 0.65, 0.85, 0.65, 0.85);
+		plot_ve2.plotAndSave(3, directoryName.c_str(), "jetEfficiencyTurnOns_hf.pdf");
+
+
+
+
+
+	} // closes 'if' plotSetType=="jets"
 
 	
 return;
