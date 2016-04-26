@@ -10,14 +10,15 @@
 #include <string>
 #include <iostream>
 
-/* 
+//TODO: insert error message explanations/terminations to avoid seg faults
+
+/*
+makes pretty plots from histograms in .root files
 How to use:
 For simple running...just change lines
-63: the set type of plots you want to make (rates, jets, esums, custom)
-69: the path to the .root file with the histograms
+65-68: the set type of plots you want to make (rates, rates_emuOnly, jets, esums, custom)
+72: the path to the .root file with the histograms (the pdf output will be saved here also)
 */
-
-//TODO: insert error message explanations/terminations to avoid seg faults
 
 class rootPlotMaker{
 //private class members: only accessible from within other members of this class
@@ -59,23 +60,25 @@ public:
 };// end of class definition
 
 void makePlots(){
-
 	// select one of 'rates', 'jets', 'esums'
-	string plotSetType = "rates";
+
+	// string plotSetType = "rates";
+	// string plotSetType = "rates_emuOnly";
+	string plotSetType = "rates_emuOnlyCompare"; //nb: currently need to chnge legend names by hand
 	// string plotSetType = "jets";
 	// string plotSetType = "esums";
 
 	// set unique parameters
 	// set up to primary operate on a single root file
-	string directoryName = "output_rates/run269224_zeroBias_v34p0/"; //also the directory where we save final plots
-	string secondFileDirectoryName = "";
+	string directoryName = "output_rates/zeroBiasReReco_run259721_v39p1/"; //also the directory where we save final plots
+	string secondFileDirectoryName = "output_rates/ZeroBiasReReco_run259721_v37p0/";
 
 	string inputFileName = "histos.root"; // set up analysis macros to name output this
 	string secondInputFileName = "histos.root";
 	string path = directoryName + inputFileName;
 	string path2 = secondFileDirectoryName + secondInputFileName;
 
-	//create standard input objects (at the moment operating on eight seperate lines)
+	//create standard input objects (at the moment operating on eight seperate lines max)
 	//(histogram selection and legend naming should be in sync with the following)
     vector<int> histogramLineWidths_allSize2; // all the same width of 2
     histogramLineWidths_allSize2.assign(8,2);
@@ -136,10 +139,11 @@ void makePlots(){
 	inputFilePath_twoFiles.push_back(path.c_str());	
 	inputFilePath_twoFiles.push_back(path2.c_str());	
 
+	// INFO***
 	// create rootPlotMaker classes and use to make plots
-	// to make a new 1d one, copy and paste a _vx1 type then change the key
-	// to make a new 2d one, copy and paste a _vxy1 type then change the key
-	// to make a new eff one, copy and paste a _ve1 type then change the key
+	// to make a new 1d plot, copy and paste a _vx1 type then change the number
+	// to make a new 2d plot, copy and paste a _vxy1 type then change the number
+	// to make a new eff plot, copy and paste a _ve1 type then change the number
 	// key parameters to change:
 	// histogram names, legend names & position (if legend desired), pdf file name
 
@@ -309,7 +313,7 @@ void makePlots(){
 		legIconNames_vx8.push_back("tau_hw");
 		plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_alt23,
 									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
-		plot_vx4.setXaxisRange(0,200);
+		plot_vx8.setXaxisRange(0,200);
 		plot_vx8.turnGridLinesOn();
 		plot_vx8.turnLogYon();
 		plot_vx8.insertLegend(legIconNames_vx8, 0.65, 0.85, 0.65, 0.85);
@@ -318,7 +322,237 @@ void makePlots(){
 	} // closes 'if' plotSetType=="rates"
 
 
-	if (plotType=="jets"){
+
+
+
+	if (plotSetType=="rates_emuOnly"){
+
+		rootPlotMaker plot_vx1;
+		vector<string> histoNames_vx1;
+		histoNames_vx1.push_back("etSumDist_emu");
+		histoNames_vx1.push_back("htSumDist_emu");       
+		vector<string> legIconNames_vx1;
+		legIconNames_vx1.push_back("ett_emu");
+		legIconNames_vx1.push_back("ht_emu");
+		plot_vx1.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx1,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx1.turnGridLinesOn();
+		plot_vx1.turnLogYon();
+		plot_vx1.insertLegend(legIconNames_vx1, 0.65, 0.85, 0.65, 0.85);
+		plot_vx1.plotAndSave(1, directoryName.c_str(), "dist_et_ht_emu.pdf");
+
+		rootPlotMaker plot_vx2;
+		vector<string> histoNames_vx2;
+		histoNames_vx2.push_back("metSumDist_emu");
+		histoNames_vx2.push_back("mhtSumDist_emu");     
+		vector<string> legIconNames_vx2;
+		legIconNames_vx2.push_back("met_emu");
+		legIconNames_vx2.push_back("mht_emu");
+		plot_vx2.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx2,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx2.turnGridLinesOn();
+		plot_vx2.turnLogYon();
+		plot_vx2.insertLegend(legIconNames_vx2, 0.65, 0.85, 0.65, 0.85);
+		plot_vx2.plotAndSave(1, directoryName.c_str(), "dist_met_mht_emu.pdf");
+
+		rootPlotMaker plot_vx3;
+		vector<string> histoNames_vx3;
+		histoNames_vx3.push_back("leadingJetDist_emu");
+		histoNames_vx3.push_back("secondJetDist_emu");
+		histoNames_vx3.push_back("thirdJetDist_emu");
+		histoNames_vx3.push_back("fourthJetDist_emu");  
+		vector<string> legIconNames_vx3;
+		legIconNames_vx3.push_back("jet1_emu");
+		legIconNames_vx3.push_back("jet2_emu");
+		legIconNames_vx3.push_back("jet3_emu");
+		legIconNames_vx3.push_back("jet4_emu");
+		plot_vx3.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx3,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx3.turnGridLinesOn();
+		plot_vx3.turnLogYon();
+		plot_vx3.insertLegend(legIconNames_vx3, 0.65, 0.85, 0.65, 0.85);
+		plot_vx3.plotAndSave(1, directoryName.c_str(), "dist_jets1234_emu.pdf");
+
+		rootPlotMaker plot_vx4;
+		vector<string> histoNames_vx4;
+		histoNames_vx4.push_back("leadingEgDist_emu");
+		histoNames_vx4.push_back("secondEgDist_emu");
+		histoNames_vx4.push_back("leadingTauDist_emu");  
+		vector<string> legIconNames_vx4;
+		legIconNames_vx4.push_back("eg1_emu");
+		legIconNames_vx4.push_back("eg2_emu");
+		legIconNames_vx4.push_back("tau_emu");
+		plot_vx4.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx4,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx4.setXaxisRange(0,200);
+		plot_vx4.turnGridLinesOn();
+		plot_vx4.turnLogYon();
+		plot_vx4.insertLegend(legIconNames_vx4, 0.65, 0.85, 0.65, 0.85);
+		plot_vx4.plotAndSave(1, directoryName.c_str(), "dist_eg12_tau_emu.pdf");
+
+		rootPlotMaker plot_vx5;
+		vector<string> histoNames_vx5;
+		histoNames_vx5.push_back("etSumRates_emu");
+		histoNames_vx5.push_back("htSumRates_emu");       
+		vector<string> legIconNames_vx5;
+		legIconNames_vx5.push_back("ett_emu");
+		legIconNames_vx5.push_back("ht_emu");
+		plot_vx5.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx5,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx5.turnGridLinesOn();
+		plot_vx5.turnLogYon();
+		plot_vx5.insertLegend(legIconNames_vx5, 0.65, 0.85, 0.65, 0.85);
+		plot_vx5.plotAndSave(1, directoryName.c_str(), "rates_et_ht_emu.pdf");
+
+		rootPlotMaker plot_vx6;
+		vector<string> histoNames_vx6;
+		histoNames_vx6.push_back("metSumRates_emu");
+		histoNames_vx6.push_back("mhtSumRates_emu");       
+		vector<string> legIconNames_vx6;
+		legIconNames_vx6.push_back("met_emu");
+		legIconNames_vx6.push_back("mht_emu");
+		plot_vx6.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx6,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx6.turnGridLinesOn();
+		plot_vx6.turnLogYon();
+		plot_vx6.insertLegend(legIconNames_vx6, 0.65, 0.85, 0.65, 0.85);
+		plot_vx6.plotAndSave(1, directoryName.c_str(), "rates_met_mht_emu.pdf");
+
+		rootPlotMaker plot_vx7;
+		vector<string> histoNames_vx7;
+		histoNames_vx7.push_back("singleJetRates_emu");
+		histoNames_vx7.push_back("doubleJetRates_emu");
+		histoNames_vx7.push_back("tripleJetRates_emu");
+		histoNames_vx7.push_back("quadJetRates_emu");    
+		vector<string> legIconNames_vx7;
+		legIconNames_vx7.push_back("jet1_emu");
+		legIconNames_vx7.push_back("jet2_emu");
+		legIconNames_vx7.push_back("jet3_emu");
+		legIconNames_vx7.push_back("jet4_emu");
+		plot_vx7.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx7,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx7.turnGridLinesOn();
+		plot_vx7.turnLogYon();
+		plot_vx7.insertLegend(legIconNames_vx7, 0.65, 0.85, 0.65, 0.85);
+		plot_vx7.plotAndSave(1, directoryName.c_str(), "rates_jets1234_emu.pdf");
+
+		rootPlotMaker plot_vx8;
+		vector<string> histoNames_vx8;
+		histoNames_vx8.push_back("singleEgRates_emu");
+		histoNames_vx8.push_back("doubleEgRates_emu");
+		histoNames_vx8.push_back("tauRates_emu");  
+		vector<string> legIconNames_vx8;
+		legIconNames_vx8.push_back("eg1_emu");
+		legIconNames_vx8.push_back("eg2_emu");
+		legIconNames_vx8.push_back("tau_emu");
+		plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_allSize2,
+									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		plot_vx8.setXaxisRange(0,200);
+		plot_vx8.turnGridLinesOn();
+		plot_vx8.turnLogYon();
+		plot_vx8.insertLegend(legIconNames_vx8, 0.65, 0.85, 0.65, 0.85);
+		plot_vx8.plotAndSave(1, directoryName.c_str(), "rates_eg12_tau_emu.pdf");
+
+	} // closes 'if' plotSetType=="rates_emuOnly"
+
+
+
+
+
+	if (plotSetType=="rates_emuOnlyCompare"){
+
+		rootPlotMaker plot_vx5;
+		vector<string> histoNames_vx5;
+		histoNames_vx5.push_back("etSumRates_emu");
+		histoNames_vx5.push_back("etSumRates_emu");
+		histoNames_vx5.push_back("htSumRates_emu");    
+		histoNames_vx5.push_back("htSumRates_emu");    
+		vector<string> legIconNames_vx5;
+		legIconNames_vx5.push_back("ett_emu_v39p1");
+		legIconNames_vx5.push_back("ett_emu_v37p0");
+		legIconNames_vx5.push_back("ht_emu_v39p1");
+		legIconNames_vx5.push_back("ht_emu_v37p0");
+		plot_vx5.loadHistogramsInfo(inputFilePath_twoFiles,histoNames_vx5,histogramLineWidths_alt23,
+									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		plot_vx5.turnGridLinesOn();
+		plot_vx5.turnLogYon();
+		plot_vx5.insertLegend(legIconNames_vx5, 0.65, 0.85, 0.65, 0.85);
+		plot_vx5.plotAndSave(1, directoryName.c_str(), "rates_et_ht_emu_COMPARISON.pdf");
+
+		rootPlotMaker plot_vx6;
+		vector<string> histoNames_vx6;
+		histoNames_vx6.push_back("metSumRates_emu");
+		histoNames_vx6.push_back("metSumRates_emu");
+		histoNames_vx6.push_back("mhtSumRates_emu");       
+		histoNames_vx6.push_back("mhtSumRates_emu");     
+		vector<string> legIconNames_vx6;
+		legIconNames_vx6.push_back("met_emu_v39p1");
+		legIconNames_vx6.push_back("met_emu_v37p0");
+		legIconNames_vx6.push_back("mht_emu_v39p1");
+		legIconNames_vx6.push_back("mht_emu_v37p0");
+		plot_vx6.loadHistogramsInfo(inputFilePath_twoFiles,histoNames_vx6,histogramLineWidths_alt23,
+									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		plot_vx6.turnGridLinesOn();
+		plot_vx6.turnLogYon();
+		plot_vx6.insertLegend(legIconNames_vx6, 0.65, 0.85, 0.65, 0.85);
+		plot_vx6.plotAndSave(1, directoryName.c_str(), "rates_met_mht_emu_COMPARISON.pdf");
+
+		rootPlotMaker plot_vx7;
+		vector<string> histoNames_vx7;
+		histoNames_vx7.push_back("singleJetRates_emu");
+		histoNames_vx7.push_back("singleJetRates_emu");
+		histoNames_vx7.push_back("doubleJetRates_emu");
+		histoNames_vx7.push_back("doubleJetRates_emu");
+		histoNames_vx7.push_back("tripleJetRates_emu");
+		histoNames_vx7.push_back("tripleJetRates_emu");
+		histoNames_vx7.push_back("quadJetRates_emu");    
+		histoNames_vx7.push_back("quadJetRates_emu"); 
+		vector<string> legIconNames_vx7;
+		legIconNames_vx7.push_back("jet1_emu_v39p1");
+		legIconNames_vx7.push_back("jet1_emu_v37p0");
+		legIconNames_vx7.push_back("jet2_emu_v39p1");
+		legIconNames_vx7.push_back("jet2_emu_v37p0");
+		legIconNames_vx7.push_back("jet3_emu_v39p1");
+		legIconNames_vx7.push_back("jet3_emu_v37p0");
+		legIconNames_vx7.push_back("jet4_emu_v39p1");
+		legIconNames_vx7.push_back("jet4_emu_v37p0");
+		plot_vx7.loadHistogramsInfo(inputFilePath_twoFiles,histoNames_vx7,histogramLineWidths_alt23,
+									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		plot_vx7.turnGridLinesOn();
+		plot_vx7.turnLogYon();
+		plot_vx7.insertLegend(legIconNames_vx7, 0.65, 0.85, 0.65, 0.85);
+		plot_vx7.plotAndSave(1, directoryName.c_str(), "rates_jets1234_emu_COMPARISON.pdf");
+
+		rootPlotMaker plot_vx8;
+		vector<string> histoNames_vx8;
+		histoNames_vx8.push_back("singleEgRates_emu");
+		histoNames_vx8.push_back("singleEgRates_emu");
+		histoNames_vx8.push_back("doubleEgRates_emu");
+		histoNames_vx8.push_back("doubleEgRates_emu");
+		histoNames_vx8.push_back("tauRates_emu");  
+		histoNames_vx8.push_back("tauRates_emu");  
+		vector<string> legIconNames_vx8;
+		legIconNames_vx8.push_back("eg1_emu_v39p1");
+		legIconNames_vx8.push_back("eg1_emu_v37p0");
+		legIconNames_vx8.push_back("eg2_emu_v39p1");
+		legIconNames_vx8.push_back("eg2_emu_v37p0");
+		legIconNames_vx8.push_back("tau_emu_v39p1");
+		legIconNames_vx8.push_back("tau_emu_v37p0");
+		plot_vx8.loadHistogramsInfo(inputFilePath_twoFiles,histoNames_vx8,histogramLineWidths_alt23,
+									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		plot_vx8.setXaxisRange(0,200);
+		plot_vx8.turnGridLinesOn();
+		plot_vx8.turnLogYon();
+		plot_vx8.insertLegend(legIconNames_vx8, 0.65, 0.85, 0.65, 0.85);
+		plot_vx8.plotAndSave(1, directoryName.c_str(), "rates_eg12_tau_emu_COMPARISON.pdf");
+
+	} // closes 'if' plotSetType=="rates_emuOnlyCompare"
+
+
+
+
+
+	if (plotSetType=="jets"){
 
 		rootPlotMaker plot_ve1;
 	    vector<string> histoNums_ve1;
@@ -348,7 +582,8 @@ void makePlots(){
 		legIconNames_ve1.push_back("L1jet_p_{T}>200");
 		plot_ve1.loadEfficiencies(path,histoNums_ve1,histoDen_ve1,histoEffs_ve1,histogramLineWidths_allSize2,
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_ve1.insertLegend(legIconNames_ve1, 0.65, 0.85, 0.65, 0.85);
+		plot_ve1.insertLegend(legIconNames_ve1, 0.65, 0.85, 0.15, 0.35);
+		plot_ve1.turnGridLinesOn();
 		plot_ve1.plotAndSave(3, directoryName.c_str(), "jetEfficiencyTurnOns_central.pdf");
 
 		rootPlotMaker plot_ve2;
@@ -379,29 +614,32 @@ void makePlots(){
 		legIconNames_ve2.push_back("L1jet_p_{T}>200");
 		plot_ve2.loadEfficiencies(path,histoNums_ve2,histoDen_ve2,histoEffs_ve2,histogramLineWidths_allSize2,
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_ve2.insertLegend(legIconNames_ve2, 0.65, 0.85, 0.65, 0.85);
+		plot_ve2.insertLegend(legIconNames_ve2, 0.65, 0.85, 0.15, 0.35);
+		plot_ve2.turnGridLinesOn();
 		plot_ve2.plotAndSave(3, directoryName.c_str(), "jetEfficiencyTurnOns_hf.pdf");
 
 
-
-
+		//put more in here
 
 	} // closes 'if' plotSetType=="jets"
+
+
+
+
+	if (plotSetType=="esums"){
+
+
+
+
+	}
+
+
 
 	
 return;
 } // close makePlots function
 
-
-
-
-
-
-
-
-
 // FUNCTIONS FROM rootPlotMaker CLASS //
-
 void rootPlotMaker::loadHistogramsInfo(vector<string> inputFilePathDummy,
 						   vector<string> histogramNamesDummy,
 						   vector<int> histogramLineWidthsDummy,
@@ -438,34 +676,38 @@ void rootPlotMaker::loadEfficiencies(string inputFilenameEffDummy, vector<string
 	for (unsigned int i=0; i<histoNumeratorNames.size(); i++){
 
 		inputFileEff = TFile::Open(inputFilenameEffDummy.c_str());
-
 		numeratorObjects.push_back((TH1F*)inputFileEff->Get(histoNumeratorNames[i].c_str()));
 		denominatorObject = (TH1F*)inputFileEff->Get(histoDenominatorName.c_str());
 		histogramObjects.push_back((TH1F*)inputFileEff->Get(histoEffNames[i].c_str())); // re-use so we can use the same manipulations of the plot
 		histogramObjects[i]->SetLineWidth(histogramLineWidthsDummy[i]);
 		histogramObjects[i]->SetLineColor(histogramLineColoursDummy[i]);
 		histogramObjects[i]->SetLineStyle(histogramLineStylesDummy[i]);		
-
 		efficiencyObjects.push_back(TEfficiency(*numeratorObjects[i],*denominatorObject));
 		efficiencyObjects[i].SetLineWidth(histogramLineWidthsDummy[i]);
 		efficiencyObjects[i].SetLineColor(histogramLineColoursDummy[i]);
 		efficiencyObjects[i].SetLineStyle(histogramLineStylesDummy[i]);
-
 		// TODO: put this stuff in...
 		// efficiencyObjects[i]->SetMarkerSize(histogramMarkerSizesDummy[i]);		
 		// efficiencyObjects[i]->SetMarkerColor(histogramMarkerColoursDummy[i]);
 		// efficiencyObjects[i]->SetMarkerStyle(histogramMarkerStylesDummy[i]);
 
-		// TODO: tune the input parameters better by investigating pre-fit
-		// TODO: fit to a user defined range using ~efficiencyObjects[i].Fit(turnOnFits[i], "R");	
+		//find initial parameter for the fit...
+		double parameterCenter = histogramObjects[i]->GetBinCenter(histogramObjects[i]->GetNbinsX()-1);
+		for (Int_t j=1; j<histogramObjects[i]->GetNbinsX(); j++){
+
+			if (histogramObjects[i]->GetBinContent(j) > 0.50){
+				parameterCenter = histogramObjects[i]->GetBinCenter(j);
+				break;
+			}
+		}
+		cout << endl << endl << parameterCenter << endl;
 		TF1* errFunc = new TF1("errFunc","[0]*0.5*(TMath::Erf((x-[1])/[2])+1)",0,histogramObjects[i]->GetXaxis()->GetXmax());
 	    turnOnFits.push_back(errFunc);
-	    turnOnFits[i]->SetParameters(1.00, 40, 10);
+	    turnOnFits[i]->SetParameters(1, parameterCenter, 10); //it is highly sensitive to this "width parameter"
 	    turnOnFits[i]->SetLineColor(histogramLineColoursDummy[i]);
 	    efficiencyObjects[i].Fit(turnOnFits[i]);
 	    // histogramObjects[i]->Fit(turnOnFits[i]);
 	}
-
 	histogramObjects[0]->GetXaxis()->SetTitleOffset(1.2);
 	histogramObjects[0]->GetYaxis()->SetTitleOffset(1.2);
 	gStyle->SetOptStat(0);

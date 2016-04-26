@@ -1,0 +1,7 @@
+run 259721:
+numBunch = 517
+runLuminosity = 0.15  *(10^34)
+
+run 269224:
+numBunch = 2
+runLuminosity = 0.00037 *(10^34)

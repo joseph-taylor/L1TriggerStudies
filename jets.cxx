@@ -8,8 +8,16 @@
 #include <vector>
 #include <string>
 
-//how to use...
+/* 
+creates turnOn efficiencies and comparison histograms
+How to use:
+1. select l1==hw/emu && ref==pf/gen (~lines 78-81)
+2. write the output directory name (~line 105)
+3. setup the TChains with the right file locations (~line 120+)
 
+other option a: can select the efficiency thresholds (~line 265+)
+other option b: can select to apply cleaning to pf jets [cen and hf] (~line350)
+*/
 
 //#include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
 //#include "L1Trigger/L1TNtuples/interface/L1AnalysisSimulationDataFormat.h"
@@ -67,8 +75,8 @@ struct Jet{
 //MAIN FUNCTION
 void jets(){
 
-  bool hwOn = true;   //are we using data from hardware?
-  bool emuOn = false; //are we using data from emulator?
+  bool hwOn = false;  //are we using data from hardware?
+  bool emuOn = true;  //are we using data from emulator?
   bool recoOn = true; //are we using reco data?
   bool mcOn = false;  //are we using mc data?
 
@@ -88,10 +96,14 @@ void jets(){
     cout << "exiting as both reco and mc selected" << endl;
     return;}
 
+  if (hwOn==true && mcOn==true){
+    cout << "exiting as selecting hardware and mc doesn't make sense" << endl;
+    return;}
+
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "TEST/";
-  string outputFilename = dirName + "histos9.root";
+  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/";
+  string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -107,14 +119,9 @@ void jets(){
   TChain * mcTree = new TChain("l1ExtraTreeGenAk4/L1ExtraTree");
 
   if (emuOn){
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_4/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_5/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
+    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
+    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
+    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
   }
 
   if (hwOn){
@@ -129,14 +136,9 @@ void jets(){
   }
 
   if (recoOn){
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_4/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_5/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
+    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
+    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
+    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
   }
 
   if (mcOn){
@@ -280,16 +282,13 @@ void jets(){
     vectorOfNumsCentral.push_back(h1);
     vectorOfNumsHF.push_back(h2);
   }
-
   TH1F * hden_central = new TH1F("hden_central", "", nTurnOnBins, turnOnLo, turnOnHi);
   TH1F * hden_hf = new TH1F("hden_hf", "", nTurnOnBins, turnOnLo, turnOnHi);
-
 
   // loop through all the events//
   Long64_t nevent;
   if (recoOn){nevent = recoTree->GetEntries();}
   if (mcOn){nevent = mcTree->GetEntries();}
-   nevent = 10000; // for quick testing
   for (Long64_t i=0; i<nevent; i++){
   	
     if (emuOn){l1emuTree->GetEntry(i);}
@@ -479,7 +478,7 @@ void jets(){
         if (dR_min < dR_matchMax){
           for (unsigned int c=0; c<thresholdsVector.size(); c++){
             if (l1jet.et[k_min]>thresholdsVector[c]){
-              vectorOfNumsHF[c]->Fill(refjet.et[centralIndex]);
+              vectorOfNumsHF[c]->Fill(refjet.et[hfIndex]);
             }
           }
         }//closes 'if' upgrade jet matches to the REF jet
@@ -519,7 +518,7 @@ void jets(){
     TH1F * heff1 = new TH1F(centralEffName.c_str(), ";ref_jet E_{T} (GeV);efficiency", nTurnOnBins, turnOnLo, turnOnHi);
     TH1F * heff2 = new TH1F(hfEffName.c_str(), ";ref_jet E_{T} (GeV);efficiency", nTurnOnBins, turnOnLo, turnOnHi);
     heff1->Divide(vectorOfNumsCentral[c], hden_central);
-    heff1->Divide(vectorOfNumsHF[c], hden_hf);
+    heff2->Divide(vectorOfNumsHF[c], hden_hf);
     vectorOfEffsCentral.push_back(heff1);
     vectorOfEffsHF.push_back(heff2);
     vectorOfNumsCentral[c]->Write();
