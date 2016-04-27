@@ -11,6 +11,15 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetFilterDataFormat.h"
     
+/*
+instructions...
+
+
+
+*/
+
+
+
 bool met_filter(Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t);
 double calc_dPHI(double,double);
 
@@ -44,7 +53,7 @@ void esums_data(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_rates/run259721_zeroBiasReReco_v39p1/"; //include whether hw/emu
+  string dirName = "output_rates/run259721_zeroBiasReReco_v39p1/"; //include whether HW or EMU
   string outputFilename = dirName + "histos.root";
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -53,10 +62,14 @@ void esums_data(){
   }
 
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
-  recoTree->Add("/afs/cern.ch/work/s/sbreeze/public/jets_and_sums/l1t-integration-v37p2/ttHTobb/Ntuples/*.root");
+  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
+  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
+  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
 
   TChain * metFilterTree = new TChain("l1MetFilterRecoTree/MetFilterRecoTree");
-  metFilterTree->Add("/afs/cern.ch/work/s/sbreeze/public/jets_and_sums/l1t-integration-v37p2/ttHTobb/Ntuples/*.root");
+  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
+  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
+  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
 
   TChain * l1emuTree = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
@@ -67,9 +80,9 @@ void esums_data(){
 
   TChain * l1hwTree = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
+    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
+    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
+    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
   }
 
   //load the number of event entries
@@ -208,30 +221,22 @@ void esums_data(){
     if(metFiltersOn==false || met_filter(recoMetFilter_->hbheNoiseFilter, recoMetFilter_->hbheNoiseIsoFilter, recoMetFilter_->cscTightHalo2015Filter, recoMetFilter_->ecalDeadCellTPFilter,
                               recoMetFilter_->goodVerticesFilter, recoMetFilter_->eeBadScFilter, recoMetFilter_->chHadTrackResFilter, recoMetFilter_->muonBadTrackFilter)){
 
-      //fill the histograms
+      // fill the histograms
       hMETphi_reco->Fill(recoSums.metPhi);
       hMHTphi_reco->Fill(recoSums.mhtPhi);
-  
+      hMETphi_l1->Fill(l1Sums.metPhi); 
+      hMHTphi_l1->Fill(l1Sums.mhtPhi);
 
       hdET_ETT->Fill((l1Sums.ett-recoSums.ett)/recoSums.ett);
       hETS_ETT->Fill(recoSums.ett,l1Sums.ett);
 
-
-
-      hMET_l1->Fill(l1Sums.met);
-      hMETphi_l1->Fill(l1Sums.metPhi);  
       hdET_MET->Fill((l1Sums.met-recoSums.met)/recoSums.met);
       hETS_MET->Fill(recoSums.met,l1Sums.met);
       hdPhi_MET->Fill(calc_dPHI(recoSums.metPhi,l1Sums.metPhi));
-
   		
-      hHTT_l1->Fill(l1Sums.htt);
       hdET_HTT->Fill((l1Sums.htt-recoSums.htt)/recoSums.htt);
       hETS_HTT->Fill(recoSums.htt,l1Sums.htt);
 
-
-      hMHT_l1->Fill(l1Sums.mht);
-      hMHTphi_l1->Fill(l1Sums.mhtPhi);
       hdET_MHT->Fill((l1Sums.mht-recoSums.mht)/recoSums.mht);
       hETS_MHT->Fill(recoSums.mht,l1Sums.mht);
       hdPhi_MHT->Fill(calc_dPHI(recoSums.mhtPhi,l1Sums.mhtPhi));

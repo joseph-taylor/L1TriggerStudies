@@ -8,34 +8,33 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
 // TODO: put errors in rates...
-// TODO: print out rate a certain threshold values...
-
 /* 
 creates the the rates and distributions for l1 trigger objects
 How to use:
-1. select HW, emu, or both for the analysis (lines 25,26)
-2. input the number of bunches in the run (line 33)
-3. input the instantaneous luminosity of the run (line 34)
-4. setup the TChains with the right file locations
-   for both hw and emu (~line 47 and 50ish)
+1. select HW, emu, or both for the analysis (~lines 25,26)
+2. input the number of bunches in the run (~line 33)
+3. input the instantaneous luminosity of the run (~line 34)
+4. change the outputFilename (~line 37) ***triggerType, runNumber, version, hw/emu/both***
+5. setup the TChains with the right file locations
+   for both hw and emu (~line 47 and 50ish)...path2Ntuples.txt should hold most useful paths
 nb: for 2&3 I have provided the info in runInfoForRates.txt
 */
 
 void rates(){
   
-  bool hwOn = false;   //are we using data from hardware? (upgrade trigger had to be running!!!)
-  bool emuOn = true;  //are we using data from emulator?
+  bool hwOn = true;   //are we using data from hardware? (upgrade trigger had to be running!!!)
+  bool emuOn = false;  //are we using data from emulator?
 
   if (hwOn==false && emuOn==false){
     cout << "exiting as neither hardware or emulator selected" << endl;
     return;
   }
 
-  double numBunch = 517; //the number of bunches used for the run of interest
-  double runLum = 0.15; //luminosity of the run of interest (*10^34)
+  double numBunch = 8; //the number of bunches used for the run of interest
+  double runLum = 0.0033; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputFilename = "output_rates/zeroBiasReReco_run259721_v39p1/histos.root";
+  string outputFilename = "output_rates/zeroBias_run271306_intv42p1_HW/histos.root"; //***triggerType, runNumber, version, hw/emu/both***
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE: not going to overwrite file " << outputFilename << endl;
@@ -46,16 +45,12 @@ void rates(){
   cout << "Loading up the TChain..." << endl;
   TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    treeL1emu->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+    treeL1emu->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__271306_ZeroBias1/160426_220148/0000/*.root");
   }
 
   TChain * treeL1hw = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    treeL1hw->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    treeL1hw->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    treeL1hw->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");   
+    treeL1hw->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__271306_ZeroBias1/160426_213252/0000/*.root");  
   }
 
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1emu_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();

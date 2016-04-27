@@ -102,7 +102,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/"; //include whether hw/emu and pf/gen
+  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/"; //include whether HW/EMU and PF/GEN
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );

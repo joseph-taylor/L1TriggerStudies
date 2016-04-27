@@ -1,7 +1,18 @@
+For each run I have used rates.cxx on,
+these are the numbers I have used for normalisation
+
 run 259721:
-numBunch = 517
-runLuminosity = 0.15  *(10^34)
+numBunchCollding = 517
+runLuminosity = 0.15 *(10^34)
 
 run 269224:
-numBunch = 2
+numBunchColliding = 2
 runLuminosity = 0.00037 *(10^34)
+
+run 271336
+numBunchColliding = 8
+runLuminosity = 0.0025 *(10^34)
+
+run 271306
+numBunchColliding = 8
+runLuminosity = 0.0033 *(10^34)
