@@ -102,7 +102,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/";
+  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/"; //include whether hw/emu and pf/gen
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -285,7 +285,9 @@ void jets(){
   TH1F * hden_central = new TH1F("hden_central", "", nTurnOnBins, turnOnLo, turnOnHi);
   TH1F * hden_hf = new TH1F("hden_hf", "", nTurnOnBins, turnOnLo, turnOnHi);
 
+  ////////////////////////////////
   // loop through all the events//
+  ////////////////////////////////
   Long64_t nevent;
   if (recoOn){nevent = recoTree->GetEntries();}
   if (mcOn){nevent = mcTree->GetEntries();}
