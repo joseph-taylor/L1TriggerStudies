@@ -16,3 +16,7 @@ runLuminosity = 0.0025 *(10^34)
 run 271306
 numBunchColliding = 8
 runLuminosity = 0.0033 *(10^34)
+
+run 272022
+numBunchColliding = 49 
+runLuminosity = 0.014 *(10^34)

@@ -11,14 +11,16 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetFilterDataFormat.h"
     
-/*
-instructions...
+/* 
+creates turnOn efficiencies and comparison histograms for energy sums
+How to use:
+1. select l1==hw/emu (~lines 44-45) nb:must use reco as a reference for sums.
+2. write the output directory name (~line 58) ***triggerType, runNumber, version, HW/EMU, metFilter?!!***
+3. setup the TChains with the right file locations (~line 67+)...keeping a log in path2Ntuples.txt
 
-
-
+other option a: can select the efficiency thresholds for each type of esum (~line 182+)
+other option b: can select to whether we apply the reco met filter or not (~line46). Note: Mention on/off in outputDir.
 */
-
-
 
 bool met_filter(Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t);
 double calc_dPHI(double,double);
@@ -37,11 +39,11 @@ struct energySums{
 };
 
 //MAIN FUNCTION//
-void esums_data(){
+void eSums(){
 
-  bool hwOn = false;  //are we using data from hardware?
-  bool emuOn = true;  //are we using data from emulator?
-  bool metFiltersOn = true;  //avoids using bad events (might kill everything in commisioning runs...)
+  bool hwOn = true;  //are we using data from hardware?
+  bool emuOn = false;  //are we using data from emulator?
+  bool metFiltersOn = false;  //avoids using bad events (might kill everything in commisioning runs...)
 
   if (hwOn==false && emuOn==false){
     cout << "exiting as neither hardware or emulator selected" << endl;
@@ -53,23 +55,19 @@ void esums_data(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_rates/run259721_zeroBiasReReco_v39p1/"; //include whether HW or EMU
+  string dirName = "output_eSums/expressPhysics_run272022_intv42p1_HW_metFilterOff/"; //***triggerType, runNumber, version, HW/EMU, metFilter?!!***
   string outputFilename = dirName + "histos.root";
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE:not going to overwrite file" << endl;
     return;
   }
-
+  cout << "Loading up the TChains..." << endl;
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
-  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-  recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+  recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
 
   TChain * metFilterTree = new TChain("l1MetFilterRecoTree/MetFilterRecoTree");
-  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-  metFilterTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+  metFilterTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
 
   TChain * l1emuTree = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
@@ -80,9 +78,7 @@ void esums_data(){
 
   TChain * l1hwTree = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
   }
 
   //load the number of event entries
@@ -102,91 +98,139 @@ void esums_data(){
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1hw_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   l1hwTree->SetBranchAddress("L1Upgrade", &l1hw_);
 
-///////////////////////////////////////////
-//create the framework for the histograms//
-///////////////////////////////////////////
+  //create the framework for the histograms
+  // phi bins
+  int nPhiBins = 50;
 
-//distributions
-// TH1F * hMETphi_l1 = new TH1F("hMETphi_l1", ";#phi_{L1}^{MET}", 40, -M_PI, M_PI);
-// TH1F * hMHTphi_l1 = new TH1F("hMHTphi_l1", ";#phi_{L1}^{MHT}", 40, -M_PI, M_PI);
-// TH1F * hMETphi_reco = new TH1F("hMETphi_reco", ";#phi_{RECO}^{MET}", 40, -M_PI, M_PI);
-// TH1F * hMHTphi_reco = new TH1F("hMHTphi_reco", ";#phi_{RECO}^{MHT}", 40, 0, 2*M_PI);
+  // et bins
+  int nEtBins = 100;
+  float etLo = -1.0;
 
-// //resolutions
-// TH1F * hdET_ETT = new TH1F("hdET_ETT", ";(ETT_{L1} - ETT_{RECO})/ETT_{RECO}", 100, -1.0, 1.0);
-// TH1F * hdET_MET = new TH1F("hdET_MET", ";(MET_{L1} - MET_{RECO})/MET_{RECO}", 100, -1.0, 3.5);
-// TH1F * hdET_HTT = new TH1F("hdET_HTT", ";(HTT_{L1} - HTT_{RECO})/HTT_{RECO}", 100, -1.0, 3.0);
-// TH1F * hdET_MHT = new TH1F("hdET_MHT", ";(MHT_{L1} - MHT_{RECO})/MHT_{RECO}", 100, -1.0, 2.0);
-// TH1F * hdPhi_MET = new TH1F("hdPhi_MET", ";#phi_{RECO}^{MET} - #phi_{L1}^{MET}", 50, -M_PI, M_PI);
-// TH1F * hdPhi_MHT = new TH1F("hdPhi_MHT", ";#phi_{RECO}^{MHT} - #phi_{L1}^{MHT}", 50, -M_PI, M_PI);
-// TH2F * hETS_ETT = new TH2F("hETS_ETT", "", 200, 0, 2000, 200, 0, 800);
-// hETS_ETT->GetXaxis()->SetTitle("RECO ETT (GeV)");
-// hETS_ETT->GetYaxis()->SetTitle("L1 upgrade ETT (GeV)");
-// TH2F * hETS_MET = new TH2F("hETS_MET", "", 200, 0, 300, 200, 0, 300);
-// hETS_MET->GetXaxis()->SetTitle("RECO MET (GeV)");
-// hETS_MET->GetYaxis()->SetTitle("L1 upgrade MET (GeV)");
-// TH2F * hETS_HTT = new TH2F("hETS_HTT", "", 200, 0, 1200, 200, 0, 1200);
-// hETS_HTT->GetXaxis()->SetTitle("RECO HTT (GeV)");
-// hETS_HTT->GetYaxis()->SetTitle("L1 upgrade HTT (GeV)");
-// TH2F * hETS_MHT = new TH2F("hETS_MHT", "", 200, 0, 300, 200, 0, 300);
-// hETS_MHT->GetXaxis()->SetTitle("RECO MHT (GeV)");
-// hETS_MHT->GetYaxis()->SetTitle("L1 upgrade MHT (GeV)");
+  // eSumScat bins
+  int nL1eSumScatBins = 200;
+  float l1eSumScatLo = 0;
+  int nRecoESumScatBins = 200;
+  float recoESumScatLo = 0;
 
+  //distributions
+  TH1F * hMETphi_l1 = new TH1F("hMETphi_l1", ";#phi_{L1}^{MET}", nPhiBins, -M_PI, M_PI);
+  TH1F * hMHTphi_l1 = new TH1F("hMHTphi_l1", ";#phi_{L1}^{MHT}", nPhiBins, -M_PI, M_PI);
+  TH1F * hMETphi_reco = new TH1F("hMETphi_reco", ";#phi_{RECO}^{MET}", nPhiBins, -M_PI, M_PI);
+  TH1F * hMHTphi_reco = new TH1F("hMHTphi_reco", ";#phi_{RECO}^{MHT}", nPhiBins, 0, 2*M_PI);
 
-//turnOns//
+  // //resolutions
+  TH1F * hdET_ETT = new TH1F("hdET_ETT", ";(ETT_{L1} - ETT_{RECO})/ETT_{RECO}", nEtBins, etLo, 1.0);
+  TH1F * hdET_MET = new TH1F("hdET_MET", ";(MET_{L1} - MET_{RECO})/MET_{RECO}", nEtBins, etLo, 3.5);
+  TH1F * hdET_HTT = new TH1F("hdET_HTT", ";(HTT_{L1} - HTT_{RECO})/HTT_{RECO}", nEtBins, etLo, 3.0);
+  TH1F * hdET_MHT = new TH1F("hdET_MHT", ";(MHT_{L1} - MHT_{RECO})/MHT_{RECO}", nEtBins, etLo, 2.0);
+  TH1F * hdPhi_MET = new TH1F("hdPhi_MET", ";#phi_{RECO}^{MET} - #phi_{L1}^{MET}", nPhiBins, -M_PI, M_PI);
+  TH1F * hdPhi_MHT = new TH1F("hdPhi_MHT", ";#phi_{RECO}^{MHT} - #phi_{L1}^{MHT}", nPhiBins, -M_PI, M_PI);
+  TH2F * hETS_ETT = new TH2F("hETS_ETT", "", nRecoESumScatBins, recoESumScatLo, 2000, nL1eSumScatBins, l1eSumScatLo, 800);
+  hETS_ETT->GetXaxis()->SetTitle("RECO ETT (GeV)");
+  hETS_ETT->GetYaxis()->SetTitle("L1 ETT (GeV)");
+  TH2F * hETS_MET = new TH2F("hETS_MET", "", nRecoESumScatBins, recoESumScatLo, 300, nL1eSumScatBins, l1eSumScatLo, 300);
+  hETS_MET->GetXaxis()->SetTitle("RECO MET (GeV)");
+  hETS_MET->GetYaxis()->SetTitle("L1 MET (GeV)");
+  TH2F * hETS_HTT = new TH2F("hETS_HTT", "", nRecoESumScatBins, recoESumScatLo, 1200, nL1eSumScatBins, l1eSumScatLo, 1200);
+  hETS_HTT->GetXaxis()->SetTitle("RECO HTT (GeV)");
+  hETS_HTT->GetYaxis()->SetTitle("L1 HTT (GeV)");
+  TH2F * hETS_MHT = new TH2F("hETS_MHT", "", nRecoESumScatBins, recoESumScatLo, 300, nL1eSumScatBins, l1eSumScatLo, 300);
+  hETS_MHT->GetXaxis()->SetTitle("RECO MHT (GeV)");
+  hETS_MHT->GetYaxis()->SetTitle("L1 MHT (GeV)");
 
-//put this into vectors...
+  //turnOns Efficiencies//
+  // turnOn bins
+  int nTurnOnBinsETT = 40;
+  float turnOnLoETT = 0;
+  float turnOnHiETT = 3000;
 
-// TH1F * hden_ETT = new TH1F("hden_ETT", "", 40, 0, 3000);
-// TH1F * hden_MET = new TH1F("hden_MET", "", 40, 0, 500);
-// TH1F * hden_HTT = new TH1F("hden_HTT", "", 40, 0, 3000);
-// TH1F * hden_MHT = new TH1F("hden_MHT", "", 40, 0, 500);
-// TH1F * hnum_ETT_100 = new TH1F("hnum_ETT_100", "", 40, 0, 3000);
-// TH1F * hnum_ETT_125 = new TH1F("hnum_ETT_125", "", 40, 0, 3000);
-// TH1F * hnum_ETT_150 = new TH1F("hnum_ETT_150", "", 40, 0, 3000);
-// TH1F * hnum_ETT_175 = new TH1F("hnum_ETT_175", "", 40, 0, 3000);
-// TH1F * hnum_ETT_200 = new TH1F("hnum_ETT_200", "", 40, 0, 3000);
-// TH1F * hnum_ETT_250 = new TH1F("hnum_ETT_250", "", 40, 0, 3000);
-// TH1F * hnum_MET_40 = new TH1F("hnum_MET_40", "", 40, 0, 500);
-// TH1F * hnum_MET_60 = new TH1F("hnum_MET_60", "", 40, 0, 500);
-// TH1F * hnum_MET_80 = new TH1F("hnum_MET_80", "", 40, 0, 500);
-// TH1F * hnum_MET_100 = new TH1F("hnum_MET_100", "", 40, 0, 500);
-// TH1F * hnum_HTT_100 = new TH1F("hnum_HTT_100", "", 40, 0, 3000);
-// TH1F * hnum_HTT_125 = new TH1F("hnum_HTT_125", "", 40, 0, 3000);
-// TH1F * hnum_HTT_150 = new TH1F("hnum_HTT_150", "", 40, 0, 3000);
-// TH1F * hnum_HTT_175 = new TH1F("hnum_HTT_175", "", 40, 0, 3000);
-// TH1F * hnum_HTT_200 = new TH1F("hnum_HTT_200", "", 40, 0, 3000);
-// TH1F * hnum_HTT_250 = new TH1F("hnum_HTT_250", "", 40, 0, 3000);
-// TH1F * hnum_MHT_40 = new TH1F("hnum_MHT_40", "", 40, 0, 500);
-// TH1F * hnum_MHT_60 = new TH1F("hnum_MHT_60", "", 40, 0, 500);
-// TH1F * hnum_MHT_80 = new TH1F("hnum_MHT_80", "", 40, 0, 500);
-// TH1F * hnum_MHT_100 = new TH1F("hnum_MHT_100", "", 40, 0, 500);
-// TH1F * hEff_ETT_100 = new TH1F("hEff_ETT_100", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_ETT_125 = new TH1F("hEff_ETT_125", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_ETT_150 = new TH1F("hEff_ETT_150", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_ETT_175 = new TH1F("hEff_ETT_175", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_ETT_200 = new TH1F("hEff_ETT_200", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_ETT_250 = new TH1F("hEff_ETT_250", ";reco ETT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_MET_40 = new TH1F("hEff_MET_40", ";reco MET (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MET_60 = new TH1F("hEff_MET_60", ";reco MET (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MET_80 = new TH1F("hEff_MET_80", ";reco MET (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MET_100 = new TH1F("hEff_MET_100", ";reco MET (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_HTT_100 = new TH1F("hEff_HTT_100", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_HTT_125 = new TH1F("hEff_HTT_125", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_HTT_150 = new TH1F("hEff_HTT_150", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_HTT_175 = new TH1F("hEff_HTT_175", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_HTT_200 = new TH1F("hEff_HTT_200", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_HTT_250 = new TH1F("hEff_HTT_250", ";reco HTT (GeV);efficiency", 40, 0, 3000);
-// TH1F * hEff_MHT_40 = new TH1F("hEff_MHT_40", ";reco MHT (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MHT_60 = new TH1F("hEff_MHT_60", ";reco MHT (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MHT_80 = new TH1F("hEff_MHT_80", ";reco MHT (GeV);efficiency", 40, 0, 500);
-// TH1F * hEff_MHT_100 = new TH1F("hEff_MHT_100", ";reco MHT (GeV);efficiency", 40, 0, 500);
+  int nTurnOnBinsMET = 40;
+  float turnOnLoMET = 0;
+  float turnOnHiMET = 500;
 
+  int nTurnOnBinsHTT = 40;
+  float turnOnLoHTT = 0;
+  float turnOnHiHTT = 3000;
 
-///////////////////////////////
-//loop through all the events//
-///////////////////////////////
-//nevent = 10;
+  int nTurnOnBinsMHT = 40;
+  float turnOnLoMHT = 0;
+  float turnOnHiMHT = 500;
+
+  // turnOns histos
+  // nb: num=numerator, den=denominator. At the bottom of script we create the ratio
+  vector<TH1F*> vectorOfNumsETT;
+  vector<TH1F*> vectorOfEffsETT;
+  vector<TH1F*> vectorOfNumsMET;
+  vector<TH1F*> vectorOfEffsMET;
+  vector<TH1F*> vectorOfNumsHTT;
+  vector<TH1F*> vectorOfEffsHTT;
+  vector<TH1F*> vectorOfNumsMHT;
+  vector<TH1F*> vectorOfEffsMHT;
+
+  TH1F * hden_ETT = new TH1F("hden_ETT", "", nTurnOnBinsETT, turnOnLoETT, turnOnHiETT);
+  TH1F * hden_MET = new TH1F("hden_MET", "", nTurnOnBinsMET, turnOnLoMET, turnOnHiMET);
+  TH1F * hden_HTT = new TH1F("hden_HTT", "", nTurnOnBinsHTT, turnOnLoHTT, turnOnHiHTT);
+  TH1F * hden_MHT = new TH1F("hden_MHT", "", nTurnOnBinsMHT, turnOnLoMHT, turnOnHiMHT);
+
+  vector<int> thresholdsVectorETT;
+  thresholdsVectorETT.push_back(100);
+  thresholdsVectorETT.push_back(125);
+  thresholdsVectorETT.push_back(150);
+  thresholdsVectorETT.push_back(175);
+  thresholdsVectorETT.push_back(200);
+  thresholdsVectorETT.push_back(250);
+
+  vector<int> thresholdsVectorMET;
+  thresholdsVectorMET.push_back(40);
+  thresholdsVectorMET.push_back(60);
+  thresholdsVectorMET.push_back(80);
+  thresholdsVectorMET.push_back(100);
+
+  vector<int> thresholdsVectorHTT;
+  thresholdsVectorHTT.push_back(100);
+  thresholdsVectorHTT.push_back(125);
+  thresholdsVectorHTT.push_back(150);
+  thresholdsVectorHTT.push_back(175);
+  thresholdsVectorHTT.push_back(200);
+  thresholdsVectorHTT.push_back(250);
+
+  vector<int> thresholdsVectorMHT;
+  thresholdsVectorMHT.push_back(40);
+  thresholdsVectorMHT.push_back(60);
+  thresholdsVectorMHT.push_back(80);
+  thresholdsVectorMHT.push_back(100);
+
+  for (unsigned int c=0; c<thresholdsVectorETT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorETT[c]);
+    string centralNumName = "hnum_ETT_" + thresholdString;
+    TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBinsETT, turnOnLoETT, turnOnHiETT);
+    vectorOfNumsETT.push_back(h1);
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorMET.size(); c++){
+    string thresholdString = to_string(thresholdsVectorMET[c]);
+    string centralNumName = "hnum_MET_" + thresholdString;
+    TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBinsMET, turnOnLoMET, turnOnHiMET);
+    vectorOfNumsMET.push_back(h1);
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorHTT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorHTT[c]);
+    string centralNumName = "hnum_HTT_" + thresholdString;
+    TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBinsHTT, turnOnLoHTT, turnOnHiHTT);
+    vectorOfNumsHTT.push_back(h1);
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorMHT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorMHT[c]);
+    string centralNumName = "hnum_MHT_" + thresholdString;
+    TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBinsMHT, turnOnLoMHT, turnOnHiMHT);
+    vectorOfNumsMHT.push_back(h1);
+  }    
+
+  ///////////////////////////////
+  //loop through all the events//
+  ///////////////////////////////
  for (Int_t i=0; i<nevent; i++){
 			
 		//load info for the event
@@ -199,6 +243,8 @@ void esums_data(){
     recoSums.met = recoMet_->met;
     recoSums.htt = recoMet_->Ht;
     recoSums.mht = recoMet_->mHt;
+    recoSums.metPhi = recoMet_->metPhi;
+    recoSums.mhtPhi = recoMet_->mHtPhi;
    
     if (emuOn){
       l1Sums.ett = l1emu_->sumEt[0];
@@ -210,12 +256,13 @@ void esums_data(){
     }
 
     if (hwOn){
-      l1Sums.ett = l1hw_->sumEt[0];
-      l1Sums.met = l1hw_->sumEt[2];
-      l1Sums.htt = l1hw_->sumEt[1];
-      l1Sums.mht = l1hw_->sumEt[3];
-      l1Sums.metPhi = l1hw_->sumPhi[2];
-      l1Sums.mhtPhi = l1hw_->sumPhi[3];
+      // numbers different due to nonZero BX in HW (could cause a seg fault if this all changes)
+      l1Sums.ett = l1hw_->sumEt[8];
+      l1Sums.met = l1hw_->sumEt[10];
+      l1Sums.htt = l1hw_->sumEt[9];
+      l1Sums.mht = l1hw_->sumEt[11];
+      l1Sums.metPhi = l1hw_->sumPhi[10];
+      l1Sums.mhtPhi = l1hw_->sumPhi[11];
     }
 
     if(metFiltersOn==false || met_filter(recoMetFilter_->hbheNoiseFilter, recoMetFilter_->hbheNoiseIsoFilter, recoMetFilter_->cscTightHalo2015Filter, recoMetFilter_->ecalDeadCellTPFilter,
@@ -247,136 +294,102 @@ void esums_data(){
       hden_HTT->Fill(recoSums.htt);
       hden_MHT->Fill(recoSums.mht);
 
-      if(l1Sums.ett>100){hnum_ETT_100->Fill(recoSums.ett);}
-      if(l1Sums.ett>125){hnum_ETT_125->Fill(recoSums.ett);}
-      if(l1Sums.ett>150){hnum_ETT_150->Fill(recoSums.ett);}        
-      if(l1Sums.ett>175){hnum_ETT_175->Fill(recoSums.ett);}
-      if(l1Sums.ett>200){hnum_ETT_200->Fill(recoSums.ett);}
-      if(l1Sums.ett>250){hnum_ETT_250->Fill(recoSums.ett);}
+      for (unsigned int c=0; c<thresholdsVectorETT.size(); c++){
+        if (l1Sums.ett>thresholdsVectorETT[c]){
+          vectorOfNumsETT[c]->Fill(recoSums.ett);
+        }
+      }
 
-      if(l1Sums.met>40){hnum_MET_40->Fill(recoSums.met);}
-      if(l1Sums.met>60){hnum_MET_60->Fill(recoSums.met);}
-      if(l1Sums.met>80){hnum_MET_80->Fill(recoSums.met);}        
-      if(l1Sums.met>100){hnum_MET_100->Fill(recoSums.met);}
+      for (unsigned int c=0; c<thresholdsVectorMET.size(); c++){
+        if (l1Sums.met>thresholdsVectorMET[c]){
+          vectorOfNumsMET[c]->Fill(recoSums.met);
+        }
+      }
 
-      if(l1Sums.htt>100){hnum_HTT_100->Fill(recoSums.htt);}
-      if(l1Sums.htt>125){hnum_HTT_125->Fill(recoSums.htt);}
-      if(l1Sums.htt>150){hnum_HTT_150->Fill(recoSums.htt);}        
-      if(l1Sums.htt>175){hnum_HTT_175->Fill(recoSums.htt);}
-      if(l1Sums.htt>200){hnum_HTT_200->Fill(recoSums.htt);}
-      if(l1Sums.htt>250){hnum_HTT_250->Fill(recoSums.htt);}
+      for (unsigned int c=0; c<thresholdsVectorHTT.size(); c++){
+        if (l1Sums.htt>thresholdsVectorHTT[c]){
+          vectorOfNumsHTT[c]->Fill(recoSums.htt);
+        }
+      }
 
-      if(l1Sums.mht>40){hnum_MHT_40->Fill(recoSums.mht);}
-      if(l1Sums.mht>60){hnum_MHT_60->Fill(recoSums.mht);}
-      if(l1Sums.mht>80){hnum_MHT_80->Fill(recoSums.mht);}        
-      if(l1Sums.mht>100){hnum_MHT_100->Fill(recoSums.mht);}
+      for (unsigned int c=0; c<thresholdsVectorMHT.size(); c++){
+        if (l1Sums.mht>thresholdsVectorMHT[c]){
+          vectorOfNumsMHT[c]->Fill(recoSums.mht);
+        }
+      }
 
     }//closes 'if' we pass the reco met filter
     if (i % 10000 == 0){
 	    cout << i << " out of " << nevent << endl;}		
-  ///////////////////////////////////
-  }//closes loop through the events//
-  ///////////////////////////////////
+  }//closes loop through the events
 
   //save the output ROOT file
   //write the histograms
   TFile g( outputFilename.c_str() , "new");
 
-  //distributions
-  // hMETphi_l1->Write();
-  // hMHTphi_l1->Write();
-  // hETT_l1->Write();
-  // hMET_l1->Write();
-  // hHTT_l1->Write();
+  // distributions
+  hMETphi_l1->Write();
+  hMHTphi_l1->Write();
+  hMETphi_reco->Write();
+  hMHTphi_reco->Write();
 
-  // hMHT_l1->Write();
-  // hMETphi_reco->Write();
-  // hMHTphi_reco->Write();
-  // hETT_reco->Write();
-  // hMET_reco->Write();
-  // hHTT_reco->Write();
-  // hMHT_reco->Write();
-
-  // //resolutions
-  // hdET_ETT->Write();
-  // hdET_MET->Write();
-  // hdET_HTT->Write();
-  // hdET_MHT->Write();
-  // hdPhi_MET->Write();
-  // hdPhi_MHT->Write();
-  // hETS_ETT->Write();
-  // hETS_MET->Write();
-  // hETS_HTT->Write();
-  // hETS_MHT->Write();
+  //resolutions
+  hdET_ETT->Write();
+  hdET_MET->Write();
+  hdET_HTT->Write();
+  hdET_MHT->Write();
+  hdPhi_MET->Write();
+  hdPhi_MHT->Write();
+  hETS_ETT->Write();
+  hETS_MET->Write();
+  hETS_HTT->Write();
+  hETS_MHT->Write();
 
   //turnOns
-  hEff_ETT_100->Divide(hnum_ETT_100, hden_ETT);
-  hEff_ETT_125->Divide(hnum_ETT_125, hden_ETT);
-  hEff_ETT_150->Divide(hnum_ETT_150, hden_ETT);
-  hEff_ETT_175->Divide(hnum_ETT_175, hden_ETT);
-  hEff_ETT_200->Divide(hnum_ETT_200, hden_ETT);
-  hEff_ETT_250->Divide(hnum_ETT_250, hden_ETT);
-  hEff_ETT_100->Write();
-  hEff_ETT_125->Write();
-  hEff_ETT_150->Write();
-  hEff_ETT_175->Write();
-  hEff_ETT_200->Write();
-  hEff_ETT_250->Write();
-  hnum_ETT_100->Write();
-  hnum_ETT_125->Write();
-  hnum_ETT_150->Write();
-  hnum_ETT_175->Write();
-  hnum_ETT_200->Write();
-  hnum_ETT_250->Write();
   hden_ETT->Write();
-
-  hEff_MET_40->Divide(hnum_MET_40, hden_MET);
-  hEff_MET_60->Divide(hnum_MET_60, hden_MET);
-  hEff_MET_80->Divide(hnum_MET_80, hden_MET);
-  hEff_MET_100->Divide(hnum_MET_100, hden_MET);
-  hEff_MET_40->Write();
-  hEff_MET_60->Write();
-  hEff_MET_80->Write();
-  hEff_MET_100->Write();
-  hnum_MET_40->Write();
-  hnum_MET_60->Write();
-  hnum_MET_80->Write();
-  hnum_MET_100->Write();
   hden_MET->Write();
-
-  hEff_HTT_100->Divide(hnum_HTT_100, hden_HTT);
-  hEff_HTT_125->Divide(hnum_HTT_125, hden_HTT);
-  hEff_HTT_150->Divide(hnum_HTT_150, hden_HTT);
-  hEff_HTT_175->Divide(hnum_HTT_175, hden_HTT);
-  hEff_HTT_200->Divide(hnum_HTT_200, hden_HTT);
-  hEff_HTT_250->Divide(hnum_HTT_250, hden_HTT);
-  hEff_HTT_100->Write();
-  hEff_HTT_125->Write();
-  hEff_HTT_150->Write();
-  hEff_HTT_175->Write();
-  hEff_HTT_200->Write();
-  hEff_HTT_250->Write();
-  hnum_HTT_100->Write();
-  hnum_HTT_125->Write();
-  hnum_HTT_150->Write();
-  hnum_HTT_175->Write();
-  hnum_HTT_200->Write();
-  hnum_HTT_250->Write();
   hden_HTT->Write();
-
-  hEff_MHT_40->Divide(hnum_MHT_40, hden_MHT);
-  hEff_MHT_60->Divide(hnum_MHT_60, hden_MHT);
-  hEff_MHT_80->Divide(hnum_MHT_80, hden_MHT);
-  hEff_MHT_100->Divide(hnum_MHT_100, hden_MHT);
-  hEff_MHT_40->Write();
-  hEff_MHT_60->Write();
-  hEff_MHT_80->Write();
-  hEff_MHT_100->Write();
-  hnum_MHT_40->Write();
-  hnum_MHT_60->Write();
-  hnum_MHT_80->Write();
-  hnum_MHT_100->Write();
   hden_MHT->Write();
+
+  for (unsigned int c=0; c<thresholdsVectorETT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorETT[c]);
+    string centralEffName = "hEff_ETT_" + thresholdString;
+    TH1F * heff = new TH1F(centralEffName.c_str(), ";reco ETT E_{T} (GeV);efficiency", nTurnOnBinsETT, turnOnLoETT, turnOnHiETT);
+    heff->Divide(vectorOfNumsETT[c], hden_ETT);
+    vectorOfEffsETT.push_back(heff);
+    vectorOfNumsETT[c]->Write();
+    vectorOfEffsETT[c]->Write();
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorMET.size(); c++){
+    string thresholdString = to_string(thresholdsVectorMET[c]);
+    string centralEffName = "hEff_MET_" + thresholdString;
+    TH1F * heff = new TH1F(centralEffName.c_str(), ";reco MET E_{T} (GeV);efficiency", nTurnOnBinsMET, turnOnLoMET, turnOnHiMET);
+    heff->Divide(vectorOfNumsMET[c], hden_MET);
+    vectorOfEffsMET.push_back(heff);
+    vectorOfNumsMET[c]->Write();
+    vectorOfEffsMET[c]->Write();
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorHTT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorHTT[c]);
+    string centralEffName = "hEff_HTT_" + thresholdString;
+    TH1F * heff = new TH1F(centralEffName.c_str(), ";reco HTT E_{T} (GeV);efficiency", nTurnOnBinsHTT, turnOnLoHTT, turnOnHiHTT);
+    heff->Divide(vectorOfNumsHTT[c], hden_HTT);
+    vectorOfEffsHTT.push_back(heff);
+    vectorOfNumsHTT[c]->Write();
+    vectorOfEffsHTT[c]->Write();
+  }
+
+  for (unsigned int c=0; c<thresholdsVectorMHT.size(); c++){
+    string thresholdString = to_string(thresholdsVectorMHT[c]);
+    string centralEffName = "hEff_MHT_" + thresholdString;
+    TH1F * heff = new TH1F(centralEffName.c_str(), ";reco MHT E_{T} (GeV);efficiency", nTurnOnBinsMHT, turnOnLoMHT, turnOnHiMHT);
+    heff->Divide(vectorOfNumsMHT[c], hden_MHT);
+    vectorOfEffsMHT.push_back(heff);
+    vectorOfNumsMHT[c]->Write();
+    vectorOfEffsMHT[c]->Write();
+  }    
 
 }//closes the 'main' function
 

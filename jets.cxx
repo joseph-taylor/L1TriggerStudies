@@ -9,11 +9,11 @@
 #include <string>
 
 /* 
-creates turnOn efficiencies and comparison histograms
+creates turnOn efficiencies and comparison histograms for jets
 How to use:
 1. select l1==hw/emu && ref==pf/gen (~lines 78-81)
-2. write the output directory name (~line 105)
-3. setup the TChains with the right file locations (~line 120+)
+2. write the output directory name (~line 105) ***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+3. setup the TChains with the right file locations (~line 120+)...keeping a log in path2Ntuples.txt
 
 other option a: can select the efficiency thresholds (~line 265+)
 other option b: can select to apply cleaning to pf jets [cen and hf] (~line350)
@@ -75,8 +75,8 @@ struct Jet{
 //MAIN FUNCTION
 void jets(){
 
-  bool hwOn = false;  //are we using data from hardware?
-  bool emuOn = true;  //are we using data from emulator?
+  bool hwOn = true;  //are we using data from hardware?
+  bool emuOn = false;  //are we using data from emulator?
   bool recoOn = true; //are we using reco data?
   bool mcOn = false;  //are we using mc data?
 
@@ -102,7 +102,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run259721_zeroBiasReReco_v39p1/"; //include whether HW/EMU and PF/GEN
+  string dirName = "output_jets/expressPhysics_run272022_intv42p1_HW_PF_tightLepVetoCentral_tightJetID_hf/"; //***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -125,20 +125,11 @@ void jets(){
   }
 
   if (hwOn){
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_4/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_5/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
-    l1hwTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
   }
 
   if (recoOn){
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    recoTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
   }
 
   if (mcOn){
@@ -264,7 +255,7 @@ void jets(){
   vector<TH1F*> vectorOfNumsHF;
   vector<TH1F*> vectorOfEffsHF;
 
-  vector<double> thresholdsVector;
+  vector<int> thresholdsVector;
   thresholdsVector.push_back(36);
   thresholdsVector.push_back(52);
   thresholdsVector.push_back(68);
@@ -274,7 +265,7 @@ void jets(){
   thresholdsVector.push_back(200);
 
   for (unsigned int c=0; c<thresholdsVector.size(); c++){
-    string thresholdString = to_string(int(thresholdsVector[c]));
+    string thresholdString = to_string(thresholdsVector[c]);
     string centralNumName = "hnum" + thresholdString + "_central";
     string hfNumName = "hnum" + thresholdString + "_hf";
     TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBins, turnOnLo, turnOnHi);
@@ -349,13 +340,14 @@ void jets(){
     int centralIndex;
     int hfIndex;
 
+    // finds the ref jets we wish to compare l1jets against
     if (recoOn){
       // insert the reco cleaning you wish to apply to central (see list of functions up top)
       for (UInt_t j=0; j<refjet.n; j++){   
         if (refjet.et[j] > refJet_ETmin
             && abs(refjet.eta[j]) < refJet_etaMaxCentral
-            //&& tightLepVeto_central(refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
-            //                        refjet.chMult[j], refjet.nhMult[j], refjet.phMult[j], refjet.elMult[j], refjet.muMult[j])
+            && tightLepVeto_central(refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
+                                   refjet.chMult[j], refjet.nhMult[j], refjet.phMult[j], refjet.elMult[j], refjet.muMult[j])
             ){
           centralIndex = j;
           central_logic = true;
@@ -367,7 +359,7 @@ void jets(){
         if (refjet.et[j] > refJet_ETmin
             && abs(refjet.eta[j]) > refJet_etaMinHF
             && abs(refjet.eta[j]) < refJet_etaMaxHF
-            //&& tightJetID_hf(refjet.pef[j], refjet.nhMult[j], refjet.phMult[j])
+            && tightJetID_hf(refjet.pef[j], refjet.nhMult[j], refjet.phMult[j])
             ){   
           hfIndex = j;
           hf_logic = true;
@@ -421,6 +413,8 @@ void jets(){
       }
       
       //now make plots and turnOns using the best match
+      hden_central->Fill(refjet.et[centralIndex]);
+      if (countL1==0){hETS_central->Fill(refjet.et[centralIndex],0);}     
       if (countL1 > 0){
         double dPhi = calc_dPHI( refjet.phi[centralIndex], l1jet.phi[k_min] );
         double dEta = calc_dETA( refjet.eta[centralIndex], l1jet.eta[k_min] );     
@@ -431,7 +425,6 @@ void jets(){
         hdET_central->Fill( (l1jet.et[k_min]-refjet.et[centralIndex])/refjet.et[centralIndex] ); 
         hETS_central->Fill(refjet.et[centralIndex], l1jet.et[k_min] );
         
-        hden_central->Fill(refjet.et[centralIndex]);
         if (dR_min < dR_matchMax){
           for (unsigned int c=0; c<thresholdsVector.size(); c++){
             if (l1jet.et[k_min]>thresholdsVector[c]){
@@ -466,6 +459,8 @@ void jets(){
       }
       
       //now make plots and turnOns using the best match
+      hden_hf->Fill(refjet.et[hfIndex]);
+      if (countL1==0){hETS_hf->Fill(refjet.et[hfIndex],0);}
       if (countL1 > 0){
         double dPhi = calc_dPHI( refjet.phi[hfIndex], l1jet.phi[k_min] );
         double dEta = calc_dETA( refjet.eta[hfIndex], l1jet.eta[k_min] );     
@@ -476,7 +471,6 @@ void jets(){
         hETS_hf->Fill(refjet.et[hfIndex], l1jet.et[k_min] );
         hPosScat_hf->Fill(dPhi, dEta);        
 
-        hden_hf->Fill(refjet.et[hfIndex]);
         if (dR_min < dR_matchMax){
           for (unsigned int c=0; c<thresholdsVector.size(); c++){
             if (l1jet.et[k_min]>thresholdsVector[c]){
@@ -514,7 +508,7 @@ void jets(){
   hden_hf->Write();
   for (unsigned int c=0; c<thresholdsVector.size(); c++){
 
-    string thresholdString = to_string(int(thresholdsVector[c]));
+    string thresholdString = to_string(thresholdsVector[c]);
     string centralEffName = "hT" + thresholdString + "_central";
     string hfEffName = "hT" + thresholdString + "_hf";
     TH1F * heff1 = new TH1F(centralEffName.c_str(), ";ref_jet E_{T} (GeV);efficiency", nTurnOnBins, turnOnLo, turnOnHi);

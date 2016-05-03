@@ -1,6 +1,18 @@
 dir names for outputs
 && the corresponding paths to input ntuples
 
+
+zeroBias_run272022_intv42p1_HW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ZeroBias1/160502_212726/0000/*.root
+
+zeroBias_run272022_intv42p1_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__272022_ZeroBias1/160502_215902/0000/*.root
+
+expressPhysics_run272022_intv42p1_RECO:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root
+
+
+
 zeroBias_run271336_tsgv5p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-tsg-v5p1/ZeroBias1/crab_l1t-tsg-v5p1__271336_ZeroBias1/160426_205543/0000/*.root
 
@@ -11,6 +23,7 @@ zeroBias_run271336_intv42p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__271336_ZeroBias1/160426_213203/0000/*.root
 
 
+
 zeroBias_run271306_tsgv5p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-tsg-v5p1/ZeroBias1/crab_l1t-tsg-v5p1__271306_ZeroBias1/160425_124157/0000/*.root
 
@@ -19,3 +32,7 @@ root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1
 
 zeroBias_run271306_intv42p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__271306_ZeroBias1/160426_213252/0000/*.root
+
+zeroBias_run271306_tsgv5p1_HW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-tsg-v5p1/ZeroBias1/crab_Collision2016-unpacked-l1t-tsg-v5p1__271306_ZeroBias1/160425_123351/0000/*.root
+
