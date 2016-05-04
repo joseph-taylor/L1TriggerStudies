@@ -11,12 +11,12 @@
 /* 
 creates turnOn efficiencies and comparison histograms for jets
 How to use:
-1. select l1==hw/emu && ref==pf/gen (~lines 78-81)
-2. write the output directory name (~line 105) ***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
-3. setup the TChains with the right file locations (~line 120+)...keeping a log in path2Ntuples.txt
+1. select l1==hw/emu && ref==pf/gen (~lines 80-83)
+2. select one cleaning option for central pf jets and one cleaning option for forward pf jets (~lines 105-115)
+3. write the output directory name (~line 120) ***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+4. setup the TChains with the right file locations (~line 135+)...keeping a log in path2Ntuples.txt
 
-other option a: can select the efficiency thresholds (~line 265+)
-other option b: can select to apply cleaning to pf jets [cen and hf] (~line350)
+other option a: can select the efficiency thresholds (~line 273+)
 */
 
 //#include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
@@ -44,10 +44,12 @@ other option b: can select to apply cleaning to pf jets [cen and hf] (~line350)
 
 bool tightJetID_central(float,float,float,float,float,float,short,short,short,short,short);
 bool tightLepVeto_central(float,float,float,float,float,float,short,short,short,short,short);
-bool tightLepVeto_elMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
-bool tightLepVeto_muMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
-bool tightLepVeto_muElMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
+bool tightLepVetoElMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
+bool tightLepVetoMuMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
+bool tightLepVetoMuElMultZero_central(float,float,float,float,float,float,short,short,short,short,short);
 bool tightJetID_hf(float,short,short);
+bool centralJetCleaning(string,float,float,float,float,float,float,short,short,short,short,short);
+bool hfJetCleaning(string,float,short,short);
 double calc_dPHI(double,double);
 double calc_dETA(double,double);
 double calc_dR(double,double);
@@ -100,9 +102,22 @@ void jets(){
     cout << "exiting as selecting hardware and mc doesn't make sense" << endl;
     return;}
 
+  // pick one of the following cleaning cuts for pf_central
+  // string typeOfCleaning_central = "noCleaning_central";
+  // string typeOfCleaning_central = "tightJetID_central";
+  // string typeOfCleaning_central = "tightLepVeto_central";
+  // string typeOfCleaning_central = "tightLepVetoElMultZero_central";
+  // string typeOfCleaning_central = "tightLepVetoMuMultZero_central";
+  string typeOfCleaning_central = "tightLepVetoMuElMultZero_central";
+
+  // pick one of the following cleaning cuts for pf_hf
+  string typeOfCleaning_hf = "noCleaning_hf";
+  // string typeOfCleaning_hf = "tightJetID_hf";
+
+
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/expressPhysics_run272022_intv42p1_HW_PF_tightLepVetoCentral_tightJetID_hf/"; //***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/run272022_expressPhysics_intv42p1_hwPf_tightLepVetoMuElMultZeroCentral_noCleaningHF/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -187,7 +202,6 @@ void jets(){
   recoTree->SetBranchAddress("Jet", &recoJet_);
   L1Analysis::L1AnalysisL1ExtraDataFormat      *genJet_ = new L1Analysis::L1AnalysisL1ExtraDataFormat();
   mcTree->SetBranchAddress("L1Extra", &genJet_);
-
 
   //create the framework for the histograms
   // phi bins
@@ -346,7 +360,7 @@ void jets(){
       for (UInt_t j=0; j<refjet.n; j++){   
         if (refjet.et[j] > refJet_ETmin
             && abs(refjet.eta[j]) < refJet_etaMaxCentral
-            && tightLepVeto_central(refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
+            && centralJetCleaning(typeOfCleaning_central.c_str(), refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
                                    refjet.chMult[j], refjet.nhMult[j], refjet.phMult[j], refjet.elMult[j], refjet.muMult[j])
             ){
           centralIndex = j;
@@ -359,7 +373,7 @@ void jets(){
         if (refjet.et[j] > refJet_ETmin
             && abs(refjet.eta[j]) > refJet_etaMinHF
             && abs(refjet.eta[j]) < refJet_etaMaxHF
-            && tightJetID_hf(refjet.pef[j], refjet.nhMult[j], refjet.phMult[j])
+            && hfJetCleaning(typeOfCleaning_hf.c_str(), refjet.pef[j], refjet.nhMult[j], refjet.phMult[j])
             ){   
           hfIndex = j;
           hf_logic = true;
@@ -525,6 +539,42 @@ void jets(){
 
 }//closes the 'main' function
 
+
+bool centralJetCleaning(string typeOfCleaning_central, float eta, float nhef, float pef, float mef, float chef, float eef,
+                        short chMult, short nhMult, short phMult, short elMult, short muMult){
+
+  bool jetPassCentral = true;
+
+  if (typeOfCleaning_central=="noCleaning_central")jetPassCentral = true;
+  if (typeOfCleaning_central=="tightJetID_central"){
+    jetPassCentral = tightJetID_central(eta,nhef,pef,mef,chef,eef,chMult,nhMult,phMult,elMult,muMult);
+  }
+  if (typeOfCleaning_central=="tightLepVeto_central"){
+    jetPassCentral = tightLepVeto_central(eta,nhef,pef,mef,chef,eef,chMult,nhMult,phMult,elMult,muMult);    
+  }
+  if (typeOfCleaning_central=="tightLepVetoElMultZero_central"){
+    jetPassCentral = tightLepVetoElMultZero_central(eta,nhef,pef,mef,chef,eef,chMult,nhMult,phMult,elMult,muMult);       
+  }
+  if (typeOfCleaning_central=="tightLepVetoMuMultZero_central"){
+     jetPassCentral = tightLepVetoMuMultZero_central(eta,nhef,pef,mef,chef,eef,chMult,nhMult,phMult,elMult,muMult);   
+  }   
+  if (typeOfCleaning_central=="tightLepVetoMuElMultZero_central"){
+      jetPassCentral = tightLepVetoMuElMultZero_central(eta,nhef,pef,mef,chef,eef,chMult,nhMult,phMult,elMult,muMult);    
+    } 
+  return jetPassCentral;
+}
+
+bool hfJetCleaning(string typeOfCleaning_hf, float pef, short nhMult, short phMult){
+
+  bool jetPassHF = true;
+
+  if (typeOfCleaning_hf=="noCleaning_hf")jetPassHF = true;
+  if (typeOfCleaning_hf=="tightJetID_hf"){
+      jetPassHF = tightJetID_hf(pef,nhMult,phMult);    
+  }
+  return jetPassHF;
+}
+
 bool tightJetID_central(float eta, float nhef, float pef, float mef, float chef, float eef,
                         short chMult, short nhMult, short phMult, short elMult, short muMult){
   //nb:this function does not use mef:but this way we keep the same input framework
@@ -547,7 +597,7 @@ bool tightLepVeto_central(float eta, float nhef, float pef, float mef, float che
 }
 
 // additionally includes 0 electron multiplicity
-bool tightLepVeto_elMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
+bool tightLepVetoElMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
                                      short chMult, short nhMult, short phMult, short elMult, short muMult){
   bool jetPass;
   if (elMult==0 &&
@@ -559,7 +609,7 @@ bool tightLepVeto_elMultZero_central(float eta, float nhef, float pef, float mef
 }
 
 // additionally includes 0 muon multiplicity (good for when running on single muon dataset for example)
-bool tightLepVeto_muMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
+bool tightLepVetoMuMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
                                      short chMult, short nhMult, short phMult, short elMult, short muMult){
   bool jetPass;
   if (muMult==0 &&
@@ -571,7 +621,7 @@ bool tightLepVeto_muMultZero_central(float eta, float nhef, float pef, float mef
 }
 
 // additionally includes 0 electron or muon multiplicity
-bool tightLepVeto_muElMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
+bool tightLepVetoMuElMultZero_central(float eta, float nhef, float pef, float mef, float chef, float eef,
                                      short chMult, short nhMult, short phMult, short elMult, short muMult){
   bool jetPass;
   if (elMult==0 && muMult==0 &&

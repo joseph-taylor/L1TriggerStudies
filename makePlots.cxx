@@ -11,7 +11,7 @@
 #include <iostream>
 
 //TODO: insert error message explanations/terminations to avoid seg faults...
-
+//TODO: ratio box for rates
 /*
 makes pretty plots from histograms in .root files
 How to use:
@@ -65,14 +65,14 @@ void makePlots(){
 	// string plotSetType = "rates_hwEmu";
 	// string plotSetType = "rates_emuOnly";
 	// string plotSetType = "rates_hwOnly";
-	string plotSetType = "rates_emuCompare"; //nb: currently need to change legend names by hand
+	// string plotSetType = "rates_emuCompare"; //nb: currently need to change legend names by hand
 	// string plotSetType = "rates_hwEmuDiffFiles";
-	// string plotSetType = "jets";
+	string plotSetType = "jets";
 	// string plotSetType = "esums";
 
 	// ***set unique parameters***
-	string directoryName = "output_rates/zeroBias_run272022_intv42p1_EMU/"; //also the directory where we save final plots
-	string secondFileDirectoryName = "output_rates/zeroBiasReReco_run259721_intv39p1_EMU/"; //only used if reading a second file
+	string directoryName = "output_jets/run272022_expressPhysics_intv42p1_hwPf_tightLepVetoMuElMultZeroCentral_noCleaningHF/"; //also the directory where we save final plots
+	string secondFileDirectoryName = "output_rates/zeroBiasReReco_run259721_intv39p1_EMU/"; //only used if reading a second file (rates_emuCompare or rates_hwEmuDiffFiles)
 	
 	string inputFileName = "histos.root"; // should have set up analysis macros to name output this filename
 	string secondInputFileName = "histos.root";

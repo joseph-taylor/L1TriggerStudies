@@ -14,7 +14,7 @@ How to use:
 1. select HW, emu, or both for the analysis (~lines 25,26)
 2. input the number of bunches in the run (~line 33)
 3. input the instantaneous luminosity of the run (~line 34)
-4. change the outputFilename (~line 37) ***triggerType, runNumber, version, hw/emu/both***
+4. change the outputFilename (~line 37) ***runNumber, triggerType, version, hw/emu/both***
 5. setup the TChains with the right file locations
    for both hw and emu [maybe...] (~line 47 and 50ish)...path2Ntuples.txt should hold most useful paths
 nb: for 2&3 I have provided the info in runInfoForRates.txt
@@ -34,7 +34,7 @@ void rates(){
   double runLum = 0.014; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputFilename = "output_rates/zeroBias_run272022_intv42p1_EMU/histos.root"; //***triggerType, runNumber, version, hw/emu/both***
+  string outputFilename = "output_rates/run272022_zeroBias_intv42p1_EMU/histos.root"; //***runNumber, triggerType, version, hw/emu/both***
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE: not going to overwrite file " << outputFilename << endl;

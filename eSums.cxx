@@ -15,7 +15,7 @@
 creates turnOn efficiencies and comparison histograms for energy sums
 How to use:
 1. select l1==hw/emu (~lines 44-45) nb:must use reco as a reference for sums.
-2. write the output directory name (~line 58) ***triggerType, runNumber, version, HW/EMU, metFilter?!!***
+2. write the output directory name (~line 58) *** runNumber, triggerType, version, HW/EMU, metFilter?!!***
 3. setup the TChains with the right file locations (~line 67+)...keeping a log in path2Ntuples.txt
 
 other option a: can select the efficiency thresholds for each type of esum (~line 182+)
@@ -55,7 +55,7 @@ void eSums(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_eSums/expressPhysics_run272022_intv42p1_HW_metFilterOff/"; //***triggerType, runNumber, version, HW/EMU, metFilter?!!***
+  string dirName = "output_eSums/run272022_expressPhysics_intv42p1_HW_metFilterOff/"; //***runNumber, triggerType, version, HW/EMU, metFilter?!!***
   string outputFilename = dirName + "histos.root";
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
