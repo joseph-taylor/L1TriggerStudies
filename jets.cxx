@@ -13,7 +13,7 @@ creates turnOn efficiencies and comparison histograms for jets
 How to use:
 1. select l1==hw/emu && ref==pf/gen (~lines 80-83)
 2. select one cleaning option for central pf jets and one cleaning option for forward pf jets (~lines 105-115)
-3. write the output directory name (~line 120) ***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+3. write the output directory name (~line 120) ***triggerType, runNumber, version, HW/EMU and PF/GEN, cleaningInformation!!!***MAKE SURE IT EXISTS
 4. setup the TChains with the right file locations (~line 135+)...keeping a log in path2Ntuples.txt
 
 other option a: can select the efficiency thresholds (~line 273+)
@@ -103,12 +103,12 @@ void jets(){
     return;}
 
   // pick one of the following cleaning cuts for pf_central
-  // string typeOfCleaning_central = "noCleaning_central";
+  string typeOfCleaning_central = "noCleaning_central";
   // string typeOfCleaning_central = "tightJetID_central";
   // string typeOfCleaning_central = "tightLepVeto_central";
   // string typeOfCleaning_central = "tightLepVetoElMultZero_central";
   // string typeOfCleaning_central = "tightLepVetoMuMultZero_central";
-  string typeOfCleaning_central = "tightLepVetoMuElMultZero_central";
+  // string typeOfCleaning_central = "tightLepVetoMuElMultZero_central";
 
   // pick one of the following cleaning cuts for pf_hf
   string typeOfCleaning_hf = "noCleaning_hf";
@@ -117,7 +117,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run272022_expressPhysics_intv42p1_hwPf_tightLepVetoMuElMultZeroCentral_noCleaningHF/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/run272022_expressPhysics_807intv46p0_hwPf_noCleaningCentral_noCleaningHF/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -140,11 +140,11 @@ void jets(){
   }
 
   if (hwOn){
-    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ExpressPhysics/160504_162627/0000/*.root");
   }
 
   if (recoOn){
-    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
+    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ExpressPhysics/160504_162627/0000/*.root");
   }
 
   if (mcOn){

@@ -1,0 +1,141 @@
+EMULATOR
+string rootFilePath = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v46p0-CMSSW-807/ZeroBias1/crab_l1t-integration-v46p0-CMSSW-807__272022_ZeroBias1/160504_164940/0000/*.root";
+
+
+string rootFilePath = "/afs/cern.ch/work/t/taylor/public/L1TriggerNtuples/run272022_zeroBias_v46p0/*.root";
+
+TChain l1Emu("l1UpgradeEmuTree/L1UpgradeTree");
+l1Emu.Add(rootFilePath.c_str());
+
+TChain event("l1EventTree/L1EventTree");
+event.Add(rootFilePath.c_str());
+
+TChain caloEmu("l1CaloTowerEmuTree/L1CaloTowerTree");
+caloEmu.Add(rootFilePath.c_str());
+
+l1Emu.AddFriend(&event);
+l1Emu.AddFriend(&caloEmu);
+
+// all braches essentially in the same tree
+// can use branch identifiers if there are duplicates
+
+l1Emu.Draw("jetEt");
+l1Emu.Draw("jetEt", "jetEt>150 && jetEt<175");
+l1Emu.Scan("event", "jetEt>150 && jetEt<175");
+
+root [13] l1Emu.Scan("event", "jetEt>150 && jetEt<175");
+***********************************
+*    Row   * Instance *     event *
+***********************************
+*     3544 *        0 *     72884 *
+*     6255 *        0 *    840824 *
+*     8225 *        0 *    887308 *
+*     9240 *        0 *   1103312 *
+*     9598 *        0 *    505323 *
+*    11791 *        0 *   1332294 *
+*    12423 *        0 *   1748121 *
+*    13559 *        0 *   1249393 *
+*    18653 *        0 *   2037881 *
+*    19803 *        0 *   2191201 *
+*    22238 *        0 *   2997336 *
+*    22845 *        0 *   3262577 *
+*    27290 *        0 *   2727194 *
+*    29548 *        0 *  34486099 *
+*    30492 *        0 *  35103034 *
+*    32579 *        1 *  34345948 *
+
+l1Emu.Draw("L1CaloTower.ieta:L1CaloTower.iphi", "L1CaloTower.iet*(event==72884)", "cols,z");
+
+
+l1Emu.Draw("egEt");
+l1Emu.Draw("egEt", "egEt>120 && egEt<150");
+l1Emu.Scan("event", "egEt>120 && egEt<150");
+
+root [17] l1Emu.Scan("event", "egEt>120 && egEt<150");
+***********************************
+*    Row   * Instance *     event *
+***********************************
+*     3544 *        0 *     72884 *
+*     6255 *        0 *    840824 *
+*     8225 *        0 *    887308 *
+*     9240 *        0 *   1103312 *
+*     9598 *        0 *    505323 *
+*    12423 *        0 *   1748121 *
+*    18653 *        0 *   2037881 *
+*    19803 *        0 *   2191201 *
+*    22238 *        5 *   2997336 *
+*    22845 *        0 *   3262577 *
+*    27290 *        0 *   2727194 *
+*    29548 *        1 *  34486099 *
+*    30492 *        0 *  35103034 *
+*    35089 *        0 *  35533437 *
+
+
+
+l1Emu.Draw("ecalTPieta:ecalTPiphi", "ecalTPet*(event==72884)", "cols,z");
+l1Emu.Draw("hcalTPieta:hcalTPiphi", "hcalTPet*(event==72884)", "cols,z");
+
+
+
+
+
+HARDWARE
+string rootFilePath = "/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/MinimumBias_run272396_intv42p1_HW/*.root";
+
+TChain l1hw("l1UpgradeTree/L1UpgradeTree");
+l1hw.Add(rootFilePath.c_str());
+
+TChain event("l1EventTree/L1EventTree");
+event.Add(rootFilePath.c_str());
+
+TChain caloHw("l1CaloTowerTree/L1CaloTowerTree");
+caloHw.Add(rootFilePath.c_str());
+
+l1hw.AddFriend(&event);
+l1hw.AddFriend(&caloHw);
+
+l1hw.Draw("bx%9", "jetEt>1000 && jetBx==0");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

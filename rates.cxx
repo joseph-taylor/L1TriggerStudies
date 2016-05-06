@@ -22,8 +22,8 @@ nb: for 2&3 I have provided the info in runInfoForRates.txt
 
 void rates(){
   
-  bool hwOn = false;   //are we using data from hardware? (upgrade trigger had to be running!!!)
-  bool emuOn = true;  //are we using data from emulator?
+  bool hwOn = true;   //are we using data from hardware? (upgrade trigger had to be running!!!)
+  bool emuOn = false;  //are we using data from emulator?
 
   if (hwOn==false && emuOn==false){
     cout << "exiting as neither hardware or emulator selected" << endl;
@@ -34,7 +34,7 @@ void rates(){
   double runLum = 0.014; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputFilename = "output_rates/run272022_zeroBias_intv42p1_EMU/histos.root"; //***runNumber, triggerType, version, hw/emu/both***
+  string outputFilename = "output_rates/run272022_zeroBias_807intv46p0_HW/histos.root"; //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE: not going to overwrite file " << outputFilename << endl;
@@ -45,12 +45,12 @@ void rates(){
   cout << "Loading up the TChain..." << endl;
   TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
-    treeL1emu->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__272022_ZeroBias1/160502_215902/0000/*.root");
+    treeL1emu->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v46p0-CMSSW-807/ZeroBias1/crab_l1t-integration-v46p0-CMSSW-807__272022_ZeroBias1/160504_164940/0000/*.root");
   }
 
   TChain * treeL1hw = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    treeL1hw->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ZeroBias1/160502_212726/0000/*.root");  
+    treeL1hw->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ZeroBias1/160504_160534/0000/*.root");  
   }
 
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1emu_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();
@@ -102,7 +102,7 @@ void rates(){
   float metSumBinWidth = (metSumHi-metSumLo)/nMetSumBins;
 
   string axR = ";Threshold E_{T} (GeV);rate (Hz)";
-  string axD = ";E_{T} (GeV);a.u.";
+  string axD = ";E_{T} (GeV);events/bin";
 
   //make histos
   TH1F* singleJetRates_emu = new TH1F("singleJetRates_emu", axR.c_str(), nJetBins, jetLo, jetHi);
@@ -167,7 +167,7 @@ void rates(){
     if (emuOn){
       treeL1emu->GetEntry(jentry);
       // get jetEt*, egEt*, tauEt, htSum, mhtSum, etSum, metSum
-      // ALL EMU OBJECTS HAVE BX=0
+      // ALL EMU OBJECTS HAVE BX=0...
       double jetEt_1 = 0;
       double jetEt_2 = 0;
       double jetEt_3 = 0;
@@ -179,7 +179,7 @@ void rates(){
       
       double egEt_1 = 0;
       double egEt_2 = 0;
-      //EG pt's are not given in descending order
+      //EG pt's are not given in descending order...bx
       for (UInt_t c=0; c<l1emu_->nEGs; c++){
         if (l1emu_->egEt[c] >= egEt_1){
           egEt_2 = egEt_1;
