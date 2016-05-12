@@ -55,7 +55,7 @@ void eSums(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_eSums/run272022_expressPhysics_intv42p1_HW_metFilterOff/"; //***runNumber, triggerType, version, HW/EMU, metFilter?!!***
+  string dirName = "output_eSums/runXXXXXX_singleMuon_807intv48p0_HW_metFilterOff/"; //***runNumber, triggerType, version, HW/EMU, metFilter?!!***
   string outputFilename = dirName + "histos.root";
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -64,21 +64,19 @@ void eSums(){
   }
   cout << "Loading up the TChains..." << endl;
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
-  recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
+  recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
 
   TChain * metFilterTree = new TChain("l1MetFilterRecoTree/MetFilterRecoTree");
-  metFilterTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
+  metFilterTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
 
   TChain * l1emuTree = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+    l1emuTree->Add("");
   }
 
   TChain * l1hwTree = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
   }
 
   //load the number of event entries

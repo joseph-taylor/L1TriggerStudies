@@ -2,37 +2,86 @@ dir names for outputs
 && the corresponding paths to input ntuples
 
 
-zeroBias_run272022_intv42p1_HW:
+runXXXXXX_singleMuon_807intv48p0_RECOHW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root
+
+
+
+
+
+run272798_zeroBias_807intv48p0_HW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807__272798_ZeroBias1/160509_102825/0000/*.root
+
+run272798_zeroBias_807intv48p0_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias1/crab_l1t-integration-v48p0-CMSSW-807__272798_ZeroBias1/160509_104502/0000/*.root
+
+
+
+
+
+EMU RATE REFERENCE NTUPLES
+run259721_zeroBias_tsgv5p1_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-tsg-v5p1/ZeroBias1/crab_l1t-tsg-v5p1__259721_ZeroBias1/160426_205125/0000/*.root
+
+run259721_zeroBias_807intv48p0_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/ ???????????
+
+
+
+run272818_zeroBias_807intv48p0_HW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807__272818_ZeroBias1/160509_102853/0000/*.root
+
+run272818_zeroBias_807int48p0_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias1/crab_l1t-integration-v48p0-CMSSW-807__272818_ZeroBias1/160509_104622/0000/*.root
+
+
+
+
+run272022_zeroBias_807intv46p0_HW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ZeroBias1/160504_160534/0000/*.root
+
+run272022_expressPhysics_807intv46p0_RECOHW:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ExpressPhysics/160504_162627/0000/*.root
+
+run272022_zeroBias_807intv46p0_EMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v46p0-CMSSW-807/ZeroBias1/crab_l1t-integration-v46p0-CMSSW-807__272022_ZeroBias1/160504_164940/0000/*.root
+
+
+
+
+run272022_zeroBias_intv42p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ZeroBias1/160502_212726/0000/*.root
 
-zeroBias_run272022_intv42p1_EMU:
+run272022_zeroBias_intv42p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__272022_ZeroBias1/160502_215902/0000/*.root
 
-expressPhysics_run272022_intv42p1_RECO:
+run272022_expressPhysics_intv42p1_RECOHW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v42p1__272022_ExpressPhysics/160502_215438/0000/*.root
 
 
 
-zeroBias_run271336_tsgv5p1_EMU:
+
+run271336_zeroBias_tsgv5p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-tsg-v5p1/ZeroBias1/crab_l1t-tsg-v5p1__271336_ZeroBias1/160426_205543/0000/*.root
 
-zeroBias_run271336_intv42p1_EMU:
+run271336_zeroBias_intv42p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__271336_ZeroBias1/160426_220107/0000/*.root
 
-zeroBias_run271336_intv42p1_HW:
+run271336_zeroBias_intv42p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__271336_ZeroBias1/160426_213203/0000/*.root
 
 
 
-zeroBias_run271306_tsgv5p1_EMU:
+
+run271306_zeroBias_tsgv5p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-tsg-v5p1/ZeroBias1/crab_l1t-tsg-v5p1__271306_ZeroBias1/160425_124157/0000/*.root
 
-zeroBias_run271306_intv42p1_EMU:
+run271306_zeroBias_intv42p1_EMU:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v42p1/ZeroBias1/crab_l1t-integration-v42p1__271306_ZeroBias1/160426_220148/0000/*.root
 
-zeroBias_run271306_intv42p1_HW:
+run271306_zeroBias_intv42p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v42p1/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v42p1__271306_ZeroBias1/160426_213252/0000/*.root
 
-zeroBias_run271306_tsgv5p1_HW:
+run271306_zeroBias_tsgv5p1_HW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-tsg-v5p1/ZeroBias1/crab_Collision2016-unpacked-l1t-tsg-v5p1__271306_ZeroBias1/160425_123351/0000/*.root
 

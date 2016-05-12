@@ -103,21 +103,21 @@ void jets(){
     return;}
 
   // pick one of the following cleaning cuts for pf_central
-  string typeOfCleaning_central = "noCleaning_central";
+  // string typeOfCleaning_central = "noCleaning_central";
   // string typeOfCleaning_central = "tightJetID_central";
   // string typeOfCleaning_central = "tightLepVeto_central";
   // string typeOfCleaning_central = "tightLepVetoElMultZero_central";
-  // string typeOfCleaning_central = "tightLepVetoMuMultZero_central";
+  string typeOfCleaning_central = "tightLepVetoMuMultZero_central";
   // string typeOfCleaning_central = "tightLepVetoMuElMultZero_central";
 
   // pick one of the following cleaning cuts for pf_hf
-  string typeOfCleaning_hf = "noCleaning_hf";
-  // string typeOfCleaning_hf = "tightJetID_hf";
+  // string typeOfCleaning_hf = "noCleaning_hf";
+  string typeOfCleaning_hf = "tightJetID_hf";
 
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run272022_expressPhysics_807intv46p0_hwPf_noCleaningCentral_noCleaningHF/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/runXXXXXX_singleMuon_807intv48p0_hwPf_cenTightLepVetoMuZero_hfTightJetID/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -134,28 +134,19 @@ void jets(){
   TChain * mcTree = new TChain("l1ExtraTreeGenAk4/L1ExtraTree");
 
   if (emuOn){
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_1/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_2/*.root");
-    l1emuTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBiasReReco_run259721_v39p1/Run2015D_4/*.root");
+    l1emuTree->Add("");
   }
 
   if (hwOn){
-    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ExpressPhysics/160504_162627/0000/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
   }
 
   if (recoOn){
-    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807/ExpressPhysics/crab_Collision2016-unpacked-l1t-integration-v46p0-CMSSW-807__272022_ExpressPhysics/160504_162627/0000/*.root");
+    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
   }
 
   if (mcOn){
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_1/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_2/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_3/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_4/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_5/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_6/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_7/*.root");
-      mcTree->Add("/hdfs/L1JEC/CMSSW_8_0_2/L1JetEnergyCorrections/ZeroBias_run269224_v34p0/com2016_8/*.root");
+      mcTree->Add("");
   }
 
   //Parameters for the script (nb:hf actually is between 3<->5, but this keeps it isolated from edge effects)
@@ -525,8 +516,8 @@ void jets(){
     string thresholdString = to_string(thresholdsVector[c]);
     string centralEffName = "hT" + thresholdString + "_central";
     string hfEffName = "hT" + thresholdString + "_hf";
-    TH1F * heff1 = new TH1F(centralEffName.c_str(), ";ref_jet E_{T} (GeV);efficiency", nTurnOnBins, turnOnLo, turnOnHi);
-    TH1F * heff2 = new TH1F(hfEffName.c_str(), ";ref_jet E_{T} (GeV);efficiency", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * heff1 = new TH1F(centralEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * heff2 = new TH1F(hfEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
     heff1->Divide(vectorOfNumsCentral[c], hden_central);
     heff2->Divide(vectorOfNumsHF[c], hden_hf);
     vectorOfEffsCentral.push_back(heff1);
