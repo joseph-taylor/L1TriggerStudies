@@ -112,13 +112,13 @@ void jets(){
   // string typeOfCleaning_central = "tightLepVetoMuElMultZero_central";
 
   // pick one of the following cleaning cuts for pf_hf
-  // string typeOfCleaning_hf = "noCleaning_hf";
-  string typeOfCleaning_hf = "tightJetID_hf";
+  string typeOfCleaning_hf = "noCleaning_hf";
+  // string typeOfCleaning_hf = "tightJetID_hf";
 
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run273301_singleMuon_807intv53p1_hwPf_tightLepVetoMuMultZero_hfTightJetID/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/run273301_singleMuon_807intv53p1_hwPf_tightLepVetoMuMultZero_hfTightJetID_withOfflineCorrectios/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -361,7 +361,8 @@ void jets(){
     //vec[j]
 
     if (recoOn){
-      refjet.et = recoJet_->et;
+      refjet.et = recoJet_->etCorr; // with offline jet correction
+      // refjet.et = recoJet_->et; // no offline jet correction
       refjet.eta = recoJet_->eta;
       refjet.phi = recoJet_->phi;
       refjet.n = recoJet_->nJets;
