@@ -4,21 +4,22 @@
 #include "TH1F.h"
 #include "TChain.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
-/* // TODO: put errors in rates...
+/* TODO: put errors in rates...
 creates the the rates and distributions for l1 trigger objects
 How to use:
 1. select HW, emu, or both for the analysis (~lines 25,26)
 2. input the number of bunches in the run (~line 33)
 3. input the instantaneous luminosity of the run (~line 34) [only if we scale to 2016 nominal]
 4. change the outputFilename (~line 37) ***runNumber, triggerType, version, hw/emu/both, rescaleORnot***
-5. set the .root inputFile string (~line 44)
+5. set the .root inputFile string (~line 45)
    ...path2Ntuples.txt should hold most useful paths
-6. select whether you rescale to L=1.5e34 (~line558...) generally have it setup to rescale
+6. select whether you rescale to L=1.5e34 (~line560??...) generally have it setup to rescale
 nb: for 2&3 I have provided the info in runInfoForRates.txt
-*/
+AT LINE210 PUT IN YOUR LUMISECTION CRITERIA!!! */
 
 void rates(){
   
@@ -30,30 +31,44 @@ void rates(){
     return;
   }
 
-  double numBunch = 74; //the number of bunches colliding for the run of interest
-  double runLum = 0.0185; //luminosity of the run of interest (*10^34)
+  double numBunch = 589; //the number of bunches colliding for the run of interest
+  double runLum = 0.1725; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputFilename = "output_rates/run272798_zeroBias_807intv48p0_HW/histos.root"; //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
+  string outputDirectory = "run273301_zeroBias_807intv53p1_HW";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
+  string outputFilename = "output_rates/" + outputDirectory + "/histos.root";
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
     cout << "TERMINATE: not going to overwrite file " << outputFilename << endl;
     return;
   }
 
-  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807/ZeroBias1/crab_Collision2016-unpacked-l1t-integration-v48p0-CMSSW-807__272798_ZeroBias1/160509_102825/0000/*.root";
+  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807/ZeroBias/crab_Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807__273301_ZeroBias/160518_023920/0000/*.root";
+  // string inputFile02 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias2/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias2/160512_105739/0000/*.root";
+  // string inputFile03 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias3/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias3/160512_105752/0000/*.root";
+  // string inputFile04 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias4/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias4/160512_105712/0000/*.root";
+
   // make trees
   cout << "Loading up the TChain..." << endl;
   TChain * treeL1emu = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
     treeL1emu->Add(inputFile01.c_str());
+    // treeL1emu->Add(inputFile02.c_str());
+    // treeL1emu->Add(inputFile03.c_str());
+    // treeL1emu->Add(inputFile04.c_str());
   }
   TChain * treeL1hw = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    treeL1hw->Add(inputFile01.c_str());  
+    treeL1hw->Add(inputFile01.c_str());
+    // treeL1emu->Add(inputFile02.c_str());
+    // treeL1emu->Add(inputFile03.c_str());
+    // treeL1emu->Add(inputFile04.c_str());  
   }
   TChain * eventTree = new TChain("l1EventTree/L1EventTree");
   eventTree->Add(inputFile01.c_str()); 
+  // eventTree->Add(inputFile02.c_str());
+  // eventTree->Add(inputFile03.c_str());
+  // eventTree->Add(inputFile04.c_str());     
 
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1emu_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   treeL1emu->SetBranchAddress("L1Upgrade", &l1emu_);
@@ -67,6 +82,12 @@ void rates(){
   if (emuOn) nentries = treeL1emu->GetEntries();
   else nentries = treeL1hw->GetEntries();
   int goodLumiEventCount = 0;
+
+  string outputTxtFilename = "output_rates/" + outputDirectory + "/extraInfo.txt";
+  ofstream myfile; // save info about the run, including rates for a given lumi section, and number of events we used.
+  myfile.open(outputTxtFilename.c_str());
+  eventTree->GetEntry(0);
+  myfile << "run number = " << event_->run << endl;
 
   // set parameters for histograms
   // jet bins
@@ -191,38 +212,39 @@ void rates(){
 
     //lumi break clause
     eventTree->GetEntry(jentry);
-    if (event_->lumi < 224
-        || event_->lumi > 1800
-        || event_->lumi == 948
-        || event_->lumi == 960
-        || event_->lumi == 973
-        || event_->lumi == 996                
-        || event_->lumi == 1023
-        || event_->lumi == 1024
-        || event_->lumi == 1037
-        || event_->lumi == 1038  
-        || event_->lumi == 1052
-        || event_->lumi == 1053
-        || event_->lumi == 1061
-        || event_->lumi == 1062                
-        || event_->lumi == 1063
-        || event_->lumi == 1064
-        || event_->lumi == 1065
-        || event_->lumi == 1066 
-        || event_->lumi == 1067
-        || event_->lumi == 1361                
-        || event_->lumi == 1362
-        || event_->lumi == 1371
-        || event_->lumi == 1372
-        || event_->lumi == 1373
-        || event_->lumi == 1719
-        || event_->lumi == 1720)
-    {
-      //skip the corresponding event
-      continue;
-    }
+    // if (event_->lumi < 224
+    //     || event_->lumi > 1800
+    //     || event_->lumi == 948
+    //     || event_->lumi == 960
+    //     || event_->lumi == 973
+    //     || event_->lumi == 996                
+    //     || event_->lumi == 1023
+    //     || event_->lumi == 1024
+    //     || event_->lumi == 1037
+    //     || event_->lumi == 1038  
+    //     || event_->lumi == 1052
+    //     || event_->lumi == 1053
+    //     || event_->lumi == 1061
+    //     || event_->lumi == 1062                
+    //     || event_->lumi == 1063
+    //     || event_->lumi == 1064
+    //     || event_->lumi == 1065
+    //     || event_->lumi == 1066 
+    //     || event_->lumi == 1067
+    //     || event_->lumi == 1361                
+    //     || event_->lumi == 1362
+    //     || event_->lumi == 1371
+    //     || event_->lumi == 1372
+    //     || event_->lumi == 1373
+    //     || event_->lumi == 1719
+    //     || event_->lumi == 1720)
+    // {
+    //   //skip the corresponding event
+    //   continue;
+    // }
 
     goodLumiEventCount++;
+
     //do routine for L1 emulator quantites
     if (emuOn){
       treeL1emu->GetEntry(jentry);
@@ -459,11 +481,18 @@ void rates(){
         }
       }
 
+      double htSum = 0;
+      double mhtSum = 0;
+      double etSum = 0;
+      double metSum = 0;
       // HW includes -2,-1,0,1,2 bx info (hence the different numbers, could cause a seg fault if this changes)
-      double htSum = l1hw_->sumEt[9];
-      double mhtSum = l1hw_->sumEt[11];
-      double etSum = l1hw_->sumEt[8];
-      double metSum = l1hw_->sumEt[10];
+      for (unsigned int c=0; c<l1hw_->sumEt.size(); c++){
+
+        if (l1hw_->sumType[c]==0 && l1hw_->sumBx[c]==0) etSum = l1hw_->sumEt[c];
+        if (l1hw_->sumType[c]==1 && l1hw_->sumBx[c]==0) htSum = l1hw_->sumEt[c];
+        if (l1hw_->sumType[c]==2 && l1hw_->sumBx[c]==0) metSum = l1hw_->sumEt[c];
+        if (l1hw_->sumType[c]==3 && l1hw_->sumBx[c]==0) mhtSum = l1hw_->sumEt[c];                
+      }
 
       // fill the distributions
       leadingJetDist_hw->Fill(jetEt_1);
@@ -555,7 +584,6 @@ void rates(){
   // normalisation factor for rate histograms (11kHz in the orbit frequency)
   // double norm = 11246*(numBunch/goodLumiEventCount); // no lumi rescale
   double norm = 11246*(numBunch/goodLumiEventCount)*(expectedLum/runLum); //scale to nominal lumi
-
 
   if (emuOn){
     singleJetRates_emu->Scale(norm);
@@ -665,5 +693,11 @@ void rates(){
     leadingISOTauDist_hw->Write();
     secondISOTauDist_hw->Write();
   }
- 
+  myfile << "using the following ntuple: " << inputFile01 << endl;
+  myfile << "number of colliding bunches = " << numBunch << endl;
+  myfile << "run luminosity = " << runLum << endl;
+  myfile << "expected luminosity = " << expectedLum << endl; 
+  myfile << "norm factor used = " << norm << endl;
+  myfile << "number of good events = " << goodLumiEventCount << endl;
+  myfile.close(); 
 }//closes the function 'rates'

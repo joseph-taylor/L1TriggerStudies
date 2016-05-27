@@ -4,6 +4,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include <vector>
 #include <string>
@@ -117,7 +118,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/runXXXXXX_singleMuon_807intv48p0_hwPf_cenTightLepVetoMuZero_hfTightJetID/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/run273301_singleMuon_807intv53p1_hwPf_tightLepVetoMuMultZero_hfTightJetID/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -133,18 +134,19 @@ void jets(){
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
   TChain * mcTree = new TChain("l1ExtraTreeGenAk4/L1ExtraTree");
 
+  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v53p1-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v53p1-CMSSW-807__273301_SingleMuon/160518_032024/0000/*.root";
+  // string inputFile02 = "";
+  // string inputFile03 = "";
+
   if (emuOn){
     l1emuTree->Add("");
   }
-
   if (hwOn){
-    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
+    l1hwTree->Add(inputFile01.c_str());
   }
-
   if (recoOn){
-    recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
+    recoTree->Add(inputFile01.c_str());
   }
-
   if (mcOn){
       mcTree->Add("");
   }
@@ -154,7 +156,25 @@ void jets(){
   const double refJet_etaMaxCentral = 3.00;      //max eta for REF jet to be CENTRAL
   const double refJet_etaMinHF = 3.50;           //max eta for REF jet to be HF
   const double refJet_etaMaxHF = 4.50;           //max eta for REF jet to be HF
-  const double dR_matchMax = 0.40;                //max dR allowed for a turnOn 'match'
+  const double dR_matchMax = 0.40;               //max dR allowed for a turnOn 'match'
+  const double refJet_etaMaxBarrel = 1.45;       //max eta for REF jet to be BARREL
+  const double refJet_etaMinEndcap = 1.55;       //min eta for REF jet to be ENDCAP  
+
+  // save some info about the process
+  string outputTxtFilename = dirName + "extraInfo.txt";
+  ofstream myfile; // save info about the parameters used
+  myfile.open(outputTxtFilename.c_str());
+  myfile << "ntuple file: " << inputFile01 << endl;
+  myfile << "ref. jet et min = " << refJet_ETmin << endl;
+  myfile << "ref. jet eta max central (and endcap) = " << refJet_etaMaxCentral << endl;
+  myfile << "ref. jet eta min hf = " << refJet_etaMinHF << endl;
+  myfile << "ref. jet eta max hf = " << refJet_etaMaxHF << endl;
+  myfile << "ref. jet dR match = " << dR_matchMax << endl;
+  myfile << "ref. jet eta max barrel = " << refJet_etaMaxBarrel << endl;
+  myfile << "ref. jet eta min endcap = " << refJet_etaMinEndcap << endl;
+  myfile << "central cleaning cuts = " << typeOfCleaning_central << endl;
+  myfile << "hf cleaning cuts = " << typeOfCleaning_hf << endl; 
+
 
   //Structures for script
   struct Jet refjet;
@@ -225,28 +245,51 @@ void jets(){
   float refEtScatLo = 0;
   float refEtScatHi = 250;
 
-  //comparison histos
-  TH1F * hdPhi_central = new TH1F("hdPhi_central", ";#phi_{ref} - #phi_{L1}", nPhiBins, phiLo, phiHi);
-  TH1F * hdEta_central = new TH1F("hdEta_central", ";#eta_{ref} - #eta_{L1}", nEtaBins, etaLo, etaHi);
-  TH1F * hdR_central = new TH1F("hdR_central", ";dR_{ref - L1}", ndRBins, dRLo, dRHi);
-  TH1F * hdET_central = new TH1F("hdET_central", ";(ET_{L1} - ET_{ref})/ET_{ref}", nEtBins, etLo, etHi);
-  TH2F * hPosScat_central = new TH2F("hPosScat_central", "", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
-  hPosScat_central->GetXaxis()->SetTitle("#phi_{ref} - #phi_{L1}");
-  hPosScat_central->GetYaxis()->SetTitle("#eta_{ref} - #eta_{L1}");
-  TH2F * hETS_central = new TH2F("hETS_central", "", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
-  hETS_central->GetXaxis()->SetTitle("ref E_{T} (GeV)");
-  hETS_central->GetYaxis()->SetTitle("L1 upgrade E_{T} (GeV)");
+  // response bin
+  int nResponseBins = 200;
+  float responseLo = 0;
+  float responseHi = 5.0;
 
-  TH1F * hdPhi_hf = new TH1F("hdPhi_hf", ";#phi_{ref} - #phi_{L1}", nPhiBins, phiLo, phiHi);
-  TH1F * hdEta_hf = new TH1F("hdEta_hf", ";#eta_{ref} - #eta_{L1}", nEtaBins, etaLo, etaHi);
-  TH1F * hdR_hf = new TH1F("hdR_hf", ";dR_{ref - L1}", ndRBins, dRLo, dRHi);
-  TH1F * hdET_hf = new TH1F("hdET_hf", ";(ET_{L1} - ET_{ref})/ET_{ref}", nEtBins, etLo, etHi);
-  TH2F * hPosScat_hf = new TH2F("hPosScat_hf", "", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
-  hPosScat_hf->GetXaxis()->SetTitle("#phi_{ref} - #phi_{L1}");
-  hPosScat_hf->GetYaxis()->SetTitle("#eta_{ref} - #eta_{L1}");
-  TH2F * hETS_hf = new TH2F("hETS_hf", "", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
-  hETS_hf->GetXaxis()->SetTitle("ref E_{T} (GeV)");
-  hETS_hf->GetYaxis()->SetTitle("L1 upgrade E_{T} (GeV)");
+  //comparison histos
+  TH1F * hdPhi_central = new TH1F("hdPhi_central", ";#phi_{offline} - #phi_{L1}", nPhiBins, phiLo, phiHi);
+  TH1F * hdEta_central = new TH1F("hdEta_central", ";#eta_{offline} - #eta_{L1}", nEtaBins, etaLo, etaHi);
+  TH1F * hdR_central = new TH1F("hdR_central", ";dR_{offline - L1}", ndRBins, dRLo, dRHi);
+  TH1F * hdET_central = new TH1F("hdET_central", ";(ET_{L1} - ET_{offline})/ET_{offline}", nEtBins, etLo, etHi);
+  TH2F * hPosScat_central = new TH2F("hPosScat_central", ";#phi_{offline} - #phi_{L1};#eta_{offline} - #eta_{L1}", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
+  TH2F * hETS_central = new TH2F("hETS_central", ";offline E_{T} (GeV);L1 upgrade E_{T} (GeV)", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
+  TH2F * hdPhiVsET_central = new TH2F("hdPhiVsET_central", ";offline E_{T} (GeV);#phi_{offline} - #phi_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nPhiBins, phiLo, phiHi);
+  TH2F * hdEtaVsET_central = new TH2F("hdEtaVsET_central", ";offline E_{T} (GeV);#eta_{offline} - #eta_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nEtaBins, etaLo, etaHi);
+  TH2F * hdEtVsET_central = new TH2F("hdEtVsET_central", ";offline E_{T} (GeV);#ET_{L1} / #ET_{offline}", nRefEtScatBins, refEtScatLo, refEtScatHi, nResponseBins, responseLo, responseHi);
+
+  TH1F * hdPhi_hf = new TH1F("hdPhi_hf", ";#phi_{offline} - #phi_{L1}", nPhiBins, phiLo, phiHi);
+  TH1F * hdEta_hf = new TH1F("hdEta_hf", ";#eta_{offline} - #eta_{L1}", nEtaBins, etaLo, etaHi);
+  TH1F * hdR_hf = new TH1F("hdR_hf", ";dR_{offline - L1}", ndRBins, dRLo, dRHi);
+  TH1F * hdET_hf = new TH1F("hdET_hf", ";(ET_{L1} - ET_{offline})/ET_{offline}", nEtBins, etLo, etHi);
+  TH2F * hPosScat_hf = new TH2F("hPosScat_hf", ";#phi_{offline} - #phi_{L1};#eta_{offline} - #eta_{L1}", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
+  TH2F * hETS_hf = new TH2F("hETS_hf", ";offline E_{T} (GeV);L1 upgrade E_{T} (GeV)", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
+  TH2F * hdPhiVsET_hf = new TH2F("hdPhiVsET_hf", ";offline E_{T} (GeV);#phi_{offline} - #phi_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nPhiBins, phiLo, phiHi);
+  TH2F * hdEtaVsET_hf = new TH2F("hdEtaVsET_hf", ";offline E_{T} (GeV);#eta_{offline} - #eta_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nEtaBins, etaLo, etaHi);
+  TH2F * hdEtVsET_hf = new TH2F("hdEtVsET_hf", ";offline E_{T} (GeV);#ET_{L1} / #ET_{offline}", nRefEtScatBins, refEtScatLo, refEtScatHi, nResponseBins, responseLo, responseHi);
+
+  TH1F * hdPhi_barrel = new TH1F("hdPhi_barrel", ";#phi_{offline} - #phi_{L1}", nPhiBins, phiLo, phiHi);
+  TH1F * hdEta_barrel = new TH1F("hdEta_barrel", ";#eta_{offline} - #eta_{L1}", nEtaBins, etaLo, etaHi);
+  TH1F * hdR_barrel = new TH1F("hdR_barrel", ";dR_{offline - L1}", ndRBins, dRLo, dRHi);
+  TH1F * hdET_barrel = new TH1F("hdET_barrel", ";(ET_{L1} - ET_{offline})/ET_{offline}", nEtBins, etLo, etHi);
+  TH2F * hPosScat_barrel = new TH2F("hPosScat_barrel", ";#phi_{offline} - #phi_{L1};#eta_{offline} - #eta_{L1}", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
+  TH2F * hETS_barrel = new TH2F("hETS_barrel", ";offline E_{T} (GeV);L1 upgrade E_{T} (GeV)", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
+  TH2F * hdPhiVsET_barrel = new TH2F("hdPhiVsET_barrel", ";offline E_{T} (GeV);#phi_{offline} - #phi_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nPhiBins, phiLo, phiHi);
+  TH2F * hdEtaVsET_barrel = new TH2F("hdEtaVsET_barrel", ";offline E_{T} (GeV);#eta_{offline} - #eta_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nEtaBins, etaLo, etaHi);
+  TH2F * hdEtVsET_barrel = new TH2F("hdEtVsET_barrel", ";offline E_{T} (GeV);#ET_{L1} / #ET_{offline}", nRefEtScatBins, refEtScatLo, refEtScatHi, nResponseBins, responseLo, responseHi);
+
+  TH1F * hdPhi_endcap = new TH1F("hdPhi_endcap", ";#phi_{offline} - #phi_{L1}", nPhiBins, phiLo, phiHi);
+  TH1F * hdEta_endcap = new TH1F("hdEta_endcap", ";#eta_{offline} - #eta_{L1}", nEtaBins, etaLo, etaHi);
+  TH1F * hdR_endcap = new TH1F("hdR_endcap", ";dR_{offline - L1}", ndRBins, dRLo, dRHi);
+  TH1F * hdET_endcap = new TH1F("hdET_endcap", ";(ET_{L1} - ET_{offline})/ET_{offline}", nEtBins, etLo, etHi);
+  TH2F * hPosScat_endcap = new TH2F("hPosScat_endcap", ";#phi_{offline} - #phi_{L1};#eta_{offline} - #eta_{L1}", nPhiBins, phiLo, phiHi, nEtaBins, etaLo, etaHi);
+  TH2F * hETS_endcap = new TH2F("hETS_endcap", ";offline E_{T} (GeV);L1 upgrade E_{T} (GeV)", nRefEtScatBins, refEtScatLo, refEtScatHi, nL1EtScatBins, L1EtScatLo, L1EtScatmHi);
+  TH2F * hdPhiVsET_endcap = new TH2F("hdPhiVsET_endcap", ";offline E_{T} (GeV);#phi_{offline} - #phi_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nPhiBins, phiLo, phiHi);
+  TH2F * hdEtaVsET_endcap = new TH2F("hdEtaVsET_endcap", ";offline E_{T} (GeV);#eta_{offline} - #eta_{L1}", nRefEtScatBins, refEtScatLo, refEtScatHi, nEtaBins, etaLo, etaHi);
+  TH2F * hdEtVsET_endcap = new TH2F("hdEtVsET_endcap", ";offline E_{T} (GeV);#ET_{L1} / #ET_{offline}", nRefEtScatBins, refEtScatLo, refEtScatHi, nResponseBins, responseLo, responseHi);
 
   // turnOn bins
   int nTurnOnBins = 40;
@@ -259,6 +302,10 @@ void jets(){
   vector<TH1F*> vectorOfEffsCentral;
   vector<TH1F*> vectorOfNumsHF;
   vector<TH1F*> vectorOfEffsHF;
+  vector<TH1F*> vectorOfNumsBarrel;
+  vector<TH1F*> vectorOfEffsBarrel;
+  vector<TH1F*> vectorOfNumsEndcap;
+  vector<TH1F*> vectorOfEffsEndcap;
 
   vector<int> thresholdsVector;
   thresholdsVector.push_back(36);
@@ -273,13 +320,21 @@ void jets(){
     string thresholdString = to_string(thresholdsVector[c]);
     string centralNumName = "hnum" + thresholdString + "_central";
     string hfNumName = "hnum" + thresholdString + "_hf";
+    string barrelNumName = "hnum" + thresholdString + "_barrel";
+    string endcapNumName = "hnum" + thresholdString + "_endcap";
     TH1F * h1 = new TH1F(centralNumName.c_str(), "", nTurnOnBins, turnOnLo, turnOnHi);
     TH1F * h2 = new TH1F(hfNumName.c_str(), "", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * h3 = new TH1F(barrelNumName.c_str(), "", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * h4 = new TH1F(endcapNumName.c_str(), "", nTurnOnBins, turnOnLo, turnOnHi);
     vectorOfNumsCentral.push_back(h1);
     vectorOfNumsHF.push_back(h2);
+    vectorOfNumsBarrel.push_back(h3);
+    vectorOfNumsEndcap.push_back(h4);
   }
   TH1F * hden_central = new TH1F("hden_central", "", nTurnOnBins, turnOnLo, turnOnHi);
   TH1F * hden_hf = new TH1F("hden_hf", "", nTurnOnBins, turnOnLo, turnOnHi);
+  TH1F * hden_barrel = new TH1F("hden_barrel", "", nTurnOnBins, turnOnLo, turnOnHi);
+  TH1F * hden_endcap = new TH1F("hden_endcap", "", nTurnOnBins, turnOnLo, turnOnHi);
 
   ////////////////////////////////
   // loop through all the events//
@@ -287,6 +342,8 @@ void jets(){
   Long64_t nevent;
   if (recoOn){nevent = recoTree->GetEntries();}
   if (mcOn){nevent = mcTree->GetEntries();}
+  myfile << "total number of events = " << nevent << endl; 
+  myfile.close(); 
   for (Long64_t i=0; i<nevent; i++){
   	
     if (emuOn){l1emuTree->GetEntry(i);}
@@ -342,8 +399,12 @@ void jets(){
 
     bool central_logic = false;
     bool hf_logic = false;
+    bool barrel_logic = false;
+    bool endcap_logic = false;
     int centralIndex;
     int hfIndex;
+    int barrelIndex;
+    int endcapIndex;
 
     // finds the ref jets we wish to compare l1jets against
     if (recoOn){
@@ -371,6 +432,29 @@ void jets(){
           break;
         }
       }
+      for (UInt_t j=0; j<refjet.n; j++){   
+        if (refjet.et[j] > refJet_ETmin
+            && abs(refjet.eta[j]) < refJet_etaMaxBarrel
+            && centralJetCleaning(typeOfCleaning_central.c_str(), refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
+                                   refjet.chMult[j], refjet.nhMult[j], refjet.phMult[j], refjet.elMult[j], refjet.muMult[j])
+            ){
+          barrelIndex = j;
+          barrel_logic = true;
+          break;
+        }
+      }
+      for (UInt_t j=0; j<refjet.n; j++){   
+        if (refjet.et[j] > refJet_ETmin
+            && abs(refjet.eta[j]) > refJet_etaMinEndcap
+            && abs(refjet.eta[j]) < refJet_etaMaxCentral
+            && centralJetCleaning(typeOfCleaning_central.c_str(), refjet.eta[j], refjet.nhef[j], refjet.pef[j], refjet.mef[j], refjet.chef[j], refjet.eef[j],
+                                   refjet.chMult[j], refjet.nhMult[j], refjet.phMult[j], refjet.elMult[j], refjet.muMult[j])
+            ){
+          endcapIndex = j;
+          endcap_logic = true;
+          break;
+        }
+      }
     }// closes 'if' recoOn
     
 
@@ -392,20 +476,35 @@ void jets(){
           break;
         }
       }
+      for (UInt_t j=0; j<refjet.n; j++){   
+        if (refjet.et[j] > refJet_ETmin
+            && abs(refjet.eta[j]) < refJet_etaMaxBarrel){
+          barrelIndex = j;
+          barrel_logic = true;
+          break;
+        }
+      }
+      for (UInt_t j=0; j<refjet.n; j++){   
+        if (refjet.et[j] > refJet_ETmin
+            && abs(refjet.eta[j]) > refJet_etaMinEndcap
+            && abs(refjet.eta[j]) < refJet_etaMaxCentral){
+          endcapIndex = j;
+          endcap_logic = true;
+          break;
+        }
+      }
     }// closes 'if' mcOn
 
 
     /////////////////////
     //Barrel and Endcap//
     /////////////////////
-    if (central_logic){
-    
+    if (central_logic){ 
       //now loop through the Upgrade Jets to find
       //the best matching to the REF jet in question (in terms of dR)
       double dR_min=99999.99;        //use to determine the best match jet
       UInt_t k_min=9999;             //use to index the best match jet          
       int countL1=0;                 //use this quantity as bx may be zero for some l1 jets
-
       for (UInt_t k=0; k<l1jet.n; k++){
         if(l1jet.bx[k]==0){
           double dPhi = calc_dPHI( refjet.phi[centralIndex], l1jet.phi[k] );
@@ -416,10 +515,12 @@ void jets(){
           countL1++;
         }
       }
-      
       //now make plots and turnOns using the best match
       hden_central->Fill(refjet.et[centralIndex]);
-      if (countL1==0){hETS_central->Fill(refjet.et[centralIndex],0);}     
+      if (countL1==0){
+        hETS_central->Fill(refjet.et[centralIndex],0);
+        hdEtVsET_central->Fill(refjet.et[centralIndex],0);
+      }     
       if (countL1 > 0){
         double dPhi = calc_dPHI( refjet.phi[centralIndex], l1jet.phi[k_min] );
         double dEta = calc_dETA( refjet.eta[centralIndex], l1jet.eta[k_min] );     
@@ -427,9 +528,11 @@ void jets(){
         hdEta_central->Fill(dEta);
         hdR_central->Fill(dR_min);
         hPosScat_central->Fill(dPhi, dEta);
-        hdET_central->Fill( (l1jet.et[k_min]-refjet.et[centralIndex])/refjet.et[centralIndex] ); 
-        hETS_central->Fill(refjet.et[centralIndex], l1jet.et[k_min] );
-        
+        hdET_central->Fill( (l1jet.et[k_min]-refjet.et[centralIndex])/refjet.et[centralIndex]); 
+        hETS_central->Fill(refjet.et[centralIndex],l1jet.et[k_min]);     
+        hdPhiVsET_central->Fill(refjet.et[centralIndex],dPhi);
+        hdEtaVsET_central->Fill(refjet.et[centralIndex],dEta);
+        hdEtVsET_central->Fill(refjet.et[centralIndex],(l1jet.et[k_min]/refjet.et[centralIndex]));
         if (dR_min < dR_matchMax){
           for (unsigned int c=0; c<thresholdsVector.size(); c++){
             if (l1jet.et[k_min]>thresholdsVector[c]){
@@ -441,17 +544,17 @@ void jets(){
     }//closes 'if' central logic. ie we have a ref jet
 
 
+
+
     //////
     //hf//
     //////
-    if (hf_logic){
-    
+    if (hf_logic){  
       //now loop through the Upgrade Jets to find
       //the best matching to the REF jet in question (in terms of dR)
       double dR_min=99999.99;        //use to determine the best match jet
       UInt_t k_min=9999;             //use to index the best match jet          
       int countL1=0;                 //use this quantity as bx may be zero for some l1 jets
-
       for (UInt_t k=0; k<l1jet.n; k++){
         if(l1jet.bx[k]==0){
           double dPhi = calc_dPHI( refjet.phi[hfIndex], l1jet.phi[k] );
@@ -461,21 +564,25 @@ void jets(){
           if (countL1>0 && dR<dR_min){dR_min = dR; k_min = k;}
           countL1++;
         }
-      }
-      
+      }      
       //now make plots and turnOns using the best match
       hden_hf->Fill(refjet.et[hfIndex]);
-      if (countL1==0){hETS_hf->Fill(refjet.et[hfIndex],0);}
+      if (countL1==0){
+        hETS_hf->Fill(refjet.et[hfIndex],0);
+        hdEtVsET_hf->Fill(refjet.et[hfIndex],0);
+      }     
       if (countL1 > 0){
         double dPhi = calc_dPHI( refjet.phi[hfIndex], l1jet.phi[k_min] );
         double dEta = calc_dETA( refjet.eta[hfIndex], l1jet.eta[k_min] );     
         hdPhi_hf->Fill(dPhi);
         hdEta_hf->Fill(dEta);
         hdR_hf->Fill(dR_min);
-        hdET_hf->Fill( (l1jet.et[k_min]-refjet.et[hfIndex])/refjet.et[hfIndex] ); 
-        hETS_hf->Fill(refjet.et[hfIndex], l1jet.et[k_min] );
-        hPosScat_hf->Fill(dPhi, dEta);        
-
+        hPosScat_hf->Fill(dPhi, dEta);
+        hdET_hf->Fill( (l1jet.et[k_min]-refjet.et[hfIndex])/refjet.et[hfIndex]); 
+        hETS_hf->Fill(refjet.et[hfIndex],l1jet.et[k_min]);     
+        hdPhiVsET_hf->Fill(refjet.et[hfIndex],dPhi);
+        hdEtaVsET_hf->Fill(refjet.et[hfIndex],dEta);
+        hdEtVsET_hf->Fill(refjet.et[hfIndex],(l1jet.et[k_min]/refjet.et[hfIndex]));     
         if (dR_min < dR_matchMax){
           for (unsigned int c=0; c<thresholdsVector.size(); c++){
             if (l1jet.et[k_min]>thresholdsVector[c]){
@@ -485,6 +592,106 @@ void jets(){
         }//closes 'if' upgrade jet matches to the REF jet
       }//closes 'if' we have countL1>0
     }//closes 'if' hf logic. ie we have a ref jet
+
+
+
+
+    //////////
+    //barrel//
+    //////////
+    if (barrel_logic){  
+      //now loop through the Upgrade Jets to find
+      //the best matching to the REF jet in question (in terms of dR)
+      double dR_min=99999.99;        //use to determine the best match jet
+      UInt_t k_min=9999;             //use to index the best match jet          
+      int countL1=0;                 //use this quantity as bx may be zero for some l1 jets
+      for (UInt_t k=0; k<l1jet.n; k++){
+        if(l1jet.bx[k]==0){
+          double dPhi = calc_dPHI( refjet.phi[barrelIndex], l1jet.phi[k] );
+          double dEta = calc_dETA( refjet.eta[barrelIndex], l1jet.eta[k] );   
+          double dR = calc_dR( dPhi, dEta);
+          if (countL1==0){dR_min = dR; k_min = k;}
+          if (countL1>0 && dR<dR_min){dR_min = dR; k_min = k;}
+          countL1++;
+        }
+      }      
+      //now make plots and turnOns using the best match
+      hden_barrel->Fill(refjet.et[barrelIndex]);
+      if (countL1==0){
+        hETS_barrel->Fill(refjet.et[barrelIndex],0);
+        hdEtVsET_barrel->Fill(refjet.et[barrelIndex],0);
+      }     
+      if (countL1 > 0){
+        double dPhi = calc_dPHI( refjet.phi[barrelIndex], l1jet.phi[k_min] );
+        double dEta = calc_dETA( refjet.eta[barrelIndex], l1jet.eta[k_min] );     
+        hdPhi_barrel->Fill(dPhi);
+        hdEta_barrel->Fill(dEta);
+        hdR_barrel->Fill(dR_min);
+        hPosScat_barrel->Fill(dPhi, dEta);
+        hdET_barrel->Fill( (l1jet.et[k_min]-refjet.et[barrelIndex])/refjet.et[barrelIndex]); 
+        hETS_barrel->Fill(refjet.et[barrelIndex],l1jet.et[k_min]);     
+        hdPhiVsET_barrel->Fill(refjet.et[barrelIndex],dPhi);
+        hdEtaVsET_barrel->Fill(refjet.et[barrelIndex],dEta);
+        hdEtVsET_barrel->Fill(refjet.et[barrelIndex],(l1jet.et[k_min]/refjet.et[barrelIndex]));      
+        if (dR_min < dR_matchMax){
+          for (unsigned int c=0; c<thresholdsVector.size(); c++){
+            if (l1jet.et[k_min]>thresholdsVector[c]){
+              vectorOfNumsBarrel[c]->Fill(refjet.et[barrelIndex]);
+            }
+          }
+        }//closes 'if' upgrade jet matches to the REF jet
+      }//closes 'if' we have countL1>0
+    }//closes 'if' barrel logic. ie we have a ref jet
+
+
+
+
+    //////////
+    //endcap//
+    //////////
+    if (endcap_logic){  
+      //now loop through the Upgrade Jets to find
+      //the best matching to the REF jet in question (in terms of dR)
+      double dR_min=99999.99;        //use to determine the best match jet
+      UInt_t k_min=9999;             //use to index the best match jet          
+      int countL1=0;                 //use this quantity as bx may be zero for some l1 jets
+      for (UInt_t k=0; k<l1jet.n; k++){
+        if(l1jet.bx[k]==0){
+          double dPhi = calc_dPHI( refjet.phi[endcapIndex], l1jet.phi[k] );
+          double dEta = calc_dETA( refjet.eta[endcapIndex], l1jet.eta[k] );   
+          double dR = calc_dR( dPhi, dEta);
+          if (countL1==0){dR_min = dR; k_min = k;}
+          if (countL1>0 && dR<dR_min){dR_min = dR; k_min = k;}
+          countL1++;
+        }
+      }      
+      //now make plots and turnOns using the best match
+      hden_endcap->Fill(refjet.et[endcapIndex]);
+      if (countL1==0){
+        hETS_endcap->Fill(refjet.et[endcapIndex],0);
+        hdEtVsET_endcap->Fill(refjet.et[endcapIndex],0);
+      }     
+      if (countL1 > 0){
+        double dPhi = calc_dPHI( refjet.phi[endcapIndex], l1jet.phi[k_min] );
+        double dEta = calc_dETA( refjet.eta[endcapIndex], l1jet.eta[k_min] );     
+        hdPhi_endcap->Fill(dPhi);
+        hdEta_endcap->Fill(dEta);
+        hdR_endcap->Fill(dR_min);
+        hPosScat_endcap->Fill(dPhi, dEta);
+        hdET_endcap->Fill( (l1jet.et[k_min]-refjet.et[endcapIndex])/refjet.et[endcapIndex]); 
+        hETS_endcap->Fill(refjet.et[endcapIndex],l1jet.et[k_min]);     
+        hdPhiVsET_endcap->Fill(refjet.et[endcapIndex],dPhi);
+        hdEtaVsET_endcap->Fill(refjet.et[endcapIndex],dEta);
+        hdEtVsET_endcap->Fill(refjet.et[endcapIndex],(l1jet.et[k_min]/refjet.et[endcapIndex]));       
+        if (dR_min < dR_matchMax){
+          for (unsigned int c=0; c<thresholdsVector.size(); c++){
+            if (l1jet.et[k_min]>thresholdsVector[c]){
+              vectorOfNumsEndcap[c]->Fill(refjet.et[endcapIndex]);
+            }
+          }
+        }//closes 'if' upgrade jet matches to the REF jet
+      }//closes 'if' we have countL1>0
+    }//closes 'if' endcap logic. ie we have a ref jet
 
 
     if (i % 10000 == 0){
@@ -501,6 +708,9 @@ void jets(){
   hdET_central->Write();
   hETS_central->Write();
   hPosScat_central->Write();
+  hdPhiVsET_central->Write();
+  hdEtaVsET_central->Write();
+  hdEtVsET_central->Write();
 
   hdPhi_hf->Write();
   hdEta_hf->Write();
@@ -508,24 +718,62 @@ void jets(){
   hdET_hf->Write();
   hETS_hf->Write();
   hPosScat_hf->Write();
+  hdPhiVsET_hf->Write();
+  hdEtaVsET_hf->Write();
+  hdEtVsET_hf->Write();
+
+  hdPhi_barrel->Write();
+  hdEta_barrel->Write();
+  hdR_barrel->Write();
+  hdET_barrel->Write();
+  hETS_barrel->Write();
+  hPosScat_barrel->Write();
+  hdPhiVsET_barrel->Write();
+  hdEtaVsET_barrel->Write();
+  hdEtVsET_barrel->Write();
+
+  hdPhi_endcap->Write();
+  hdEta_endcap->Write();
+  hdR_endcap->Write();
+  hdET_endcap->Write();
+  hETS_endcap->Write();
+  hPosScat_endcap->Write();
+  hdPhiVsET_endcap->Write();
+  hdEtaVsET_endcap->Write();
+  hdEtVsET_endcap->Write();
 
   hden_central->Write();
   hden_hf->Write();
+  hden_endcap->Write();
+  hden_barrel->Write();
+
   for (unsigned int c=0; c<thresholdsVector.size(); c++){
 
     string thresholdString = to_string(thresholdsVector[c]);
     string centralEffName = "hT" + thresholdString + "_central";
     string hfEffName = "hT" + thresholdString + "_hf";
+    string barrelEffName = "hT" + thresholdString + "_barrel";
+    string endcapEffName = "hT" + thresholdString + "_endcap";
     TH1F * heff1 = new TH1F(centralEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
     TH1F * heff2 = new TH1F(hfEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * heff3 = new TH1F(barrelEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
+    TH1F * heff4 = new TH1F(endcapEffName.c_str(), ";Offline Jet E_{T} (GeV);Efficiency", nTurnOnBins, turnOnLo, turnOnHi);
     heff1->Divide(vectorOfNumsCentral[c], hden_central);
     heff2->Divide(vectorOfNumsHF[c], hden_hf);
+    heff3->Divide(vectorOfNumsBarrel[c], hden_barrel);
+    heff4->Divide(vectorOfNumsEndcap[c], hden_endcap);
     vectorOfEffsCentral.push_back(heff1);
     vectorOfEffsHF.push_back(heff2);
+    vectorOfEffsBarrel.push_back(heff3);
+    vectorOfEffsEndcap.push_back(heff4);
     vectorOfNumsCentral[c]->Write();
     vectorOfNumsHF[c]->Write();
+    vectorOfNumsBarrel[c]->Write();
+    vectorOfNumsEndcap[c]->Write();
     vectorOfEffsCentral[c]->Write();
     vectorOfEffsHF[c]->Write();
+    vectorOfEffsBarrel[c]->Write();
+    vectorOfEffsEndcap[c]->Write();
   }
 
 }//closes the 'main' function
