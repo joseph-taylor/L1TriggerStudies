@@ -293,9 +293,9 @@ void makePlots(){
 		rootPlotMaker plot_vx9;
 		vector<string> histoNames_vx9;
   		histoNames_vx9.push_back("singleTauRates_emu");
-		histoNames_vx9.push_back("sinlgeTauRates_hw");
+		histoNames_vx9.push_back("singleTauRates_hw");
   		histoNames_vx9.push_back("singleISOTauRates_emu");
-		histoNames_vx9.push_back("sinlgeISOTauRates_hw");		
+		histoNames_vx9.push_back("singleISOTauRates_hw");		
 		histoNames_vx9.push_back("doubleTauRates_emu");
 		histoNames_vx9.push_back("doubleTauRates_hw");   
 		histoNames_vx9.push_back("doubleISOTauRates_emu");
