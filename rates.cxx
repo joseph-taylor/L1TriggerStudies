@@ -304,11 +304,11 @@ void rates(){
       double tauISOEt_2 = 0;
       //tau pt's are not given in descending order
       for (UInt_t c=0; c<l1emu_->nTaus; c++){
-        if (l1emu_->tauEt[c] > tauISOEt_1 && l1emu_->tauIso[c]==1){
+        if (l1emu_->tauEt[c] > tauISOEt_1 && l1emu_->tauIso[c]>0){
           tauISOEt_2 = tauISOEt_1;
           tauISOEt_1 = l1emu_->tauEt[c];
         }
-        else if (l1emu_->tauEt[c] <= tauISOEt_1 && l1emu_->tauEt[c] > tauISOEt_2 && l1emu_->tauIso[c]==1){
+        else if (l1emu_->tauEt[c] <= tauISOEt_1 && l1emu_->tauEt[c] > tauISOEt_2 && l1emu_->tauIso[c]>0){
           tauISOEt_2 = l1emu_->tauEt[c];
         }
       }
@@ -481,11 +481,11 @@ void rates(){
       double tauISOEt_2 = 0;
       //tau pt's are not given in descending order
       for (UInt_t c=0; c<l1hw_->nTaus; c++){
-        if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] > tauISOEt_1 && l1hw_->tauIso[c]==1){
+        if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] > tauISOEt_1 && l1hw_->tauIso[c]>0){
           tauISOEt_2 = tauISOEt_1;
           tauISOEt_1 = l1hw_->tauEt[c];
         }
-        else if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] <= tauISOEt_1 && l1hw_->tauEt[c] > tauISOEt_2 && l1hw_->tauIso[c]==1){
+        else if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] <= tauISOEt_1 && l1hw_->tauEt[c] > tauISOEt_2 && l1hw_->tauIso[c]>0){
           tauISOEt_2 = l1hw_->tauEt[c];
         }
       }
