@@ -64,18 +64,18 @@ public:
 void makePlots(){
 
 	// ***select one of the routines***
-	// string plotSetType = "rates_hwEmu";
-	// string plotSetType = "rates_emuOnly";
-	// string plotSetType = "rates_hwOnly";
+	string plotSetType = "rates_hwEmu";
+	//string plotSetType = "rates_emuOnly";
+	//string plotSetType = "rates_hwOnly";
 	// string plotSetType = "rates_emuCompare"; //nb: currently need to change legend names by hand
 	// string plotSetType = "rates_hwEmuDiffFiles"; // gah, ratio box stuff needs fixing...
-	string plotSetType = "rates_hwDiffFiles";
+	//string plotSetType = "rates_hwDiffFiles";
 	// string plotSetType = "jets";
 	// string plotSetType = "esums";
 
 	// ***set unique parameters***
-	string directoryName = "output_rates/run273301_zeroBias_807intv53p1_HW/"; //also the directory where we save final plots
-	string secondFileDirectoryName = "output_rates/run272798_zeroBias_807intv48p0_HW/"; //only used if reading a second file (rates_emuCompare or rates_hwEmuDiffFiles)
+	string directoryName = "output_rates/run274157_zeroBias_808intv59p0_HW-EMU/"; //also the directory where we save final plots
+	string secondFileDirectoryName = "output_rates/run274157_zeroBias_808intv59p0_HW/"; //only used if reading a second file (rates_emuCompare or rates_hwEmuDiffFiles)
 	
 	string inputFileName = "histos.root"; // should have set up analysis macros to name output this filename
 	string secondInputFileName = "histos.root";
@@ -293,9 +293,9 @@ void makePlots(){
 		rootPlotMaker plot_vx9;
 		vector<string> histoNames_vx9;
   		histoNames_vx9.push_back("singleTauRates_emu");
-		histoNames_vx9.push_back("sinlgeTauRates_hw");
+		histoNames_vx9.push_back("singleTauRates_hw");
   		histoNames_vx9.push_back("singleISOTauRates_emu");
-		histoNames_vx9.push_back("sinlgeISOTauRates_hw");		
+		histoNames_vx9.push_back("singleISOTauRates_hw");		
 		histoNames_vx9.push_back("doubleTauRates_emu");
 		histoNames_vx9.push_back("doubleTauRates_hw");   
 		histoNames_vx9.push_back("doubleISOTauRates_emu");
@@ -311,6 +311,7 @@ void makePlots(){
 		legIconNames_vx9.push_back("isoDoubleTau hw");
 		plot_vx9.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx9,histogramLineWidths_alt23,
 									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+
 		plot_vx9.setXaxisRange(0,200);
 		plot_vx9.turnGridLinesOn();
 		plot_vx9.turnLogYon();
@@ -1717,7 +1718,6 @@ void rootPlotMaker::loadHistogramsInfo(vector<string> inputFilePathDummy,
 						   vector<int> histogramLineStylesDummy){
 
 	for (unsigned int i=0; i<histogramNamesDummy.size(); i++){
-
 		inputFileObjects.push_back(TFile::Open(inputFilePathDummy[i].c_str()));
 		histogramObjects.push_back((TH1F*)inputFileObjects[i]->Get(histogramNamesDummy[i].c_str()));
 		histogramObjects[i]->SetLineWidth(histogramLineWidthsDummy[i]);
@@ -1781,9 +1781,9 @@ void rootPlotMaker::loadEfficiencies(string inputFilenameEffDummy, vector<string
 		    efficiencyObjects[i].Fit(turnOnFits[i]);
 		    // histogramObjects[i]->Fit(turnOnFits[i]);
 
-		    cout << "height fit: " << turnOnFits[i]->GetParameter[0];
-		    cout << "centre fit: " << turnOnFits[i]->GetParameter[0];
-		    cout << "width fit: " << turnOnFits[i]->GetParameter[0];		    		    
+		    cout << "height fit: " << turnOnFits[i]->GetParameter(0);
+		    cout << "centre fit: " << turnOnFits[i]->GetParameter(0);
+		    cout << "width fit: " << turnOnFits[i]->GetParameter(0);		    		    
 		}
 	}
 	histogramObjects[0]->GetXaxis()->SetTitleOffset(1.2);
@@ -1827,7 +1827,6 @@ void rootPlotMaker::plotAndSave(int plotType, string saveDirName, string savePlo
 
 	//TODO: finish this off this ratio box
 	if (plotType==11){
-
 		TPad *pad1 = new TPad("pad1","pad1",0,0.2,1,1);
 		pad1->SetBottomMargin(0.1);
 		pad1->Draw();
@@ -1865,7 +1864,7 @@ void rootPlotMaker::plotAndSave(int plotType, string saveDirName, string savePlo
 			hratio->SetMarkerColor(histogramLineColours_twosDifferent[i]);
 			hratio->GetXaxis()->SetTitle("");
 			hratio->GetXaxis()->SetLabelSize(0);
-			hratio->GetYaxis()->SetTitle("run273301 / run272798");
+			hratio->GetYaxis()->SetTitle("EMU/HW");
 			hratio->GetYaxis()->SetTitleSize(0.13);
 			hratio->GetYaxis()->SetTitleOffset(0.3);	
 			hratio->GetYaxis()->SetLabelSize(0.1);

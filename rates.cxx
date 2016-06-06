@@ -24,18 +24,19 @@ AT LINE210 PUT IN YOUR LUMISECTION CRITERIA!!! */
 void rates(){
   
   bool hwOn = true;   //are we using data from hardware? (upgrade trigger had to be running!!!)
-  bool emuOn = false;  //are we using data from emulator?
+  bool emuOn = true;  //are we using data from emulator?
 
   if (hwOn==false && emuOn==false){
     cout << "exiting as neither hardware or emulator selected" << endl;
     return;
   }
 
-  double numBunch = 589; //the number of bunches colliding for the run of interest
-  double runLum = 0.1725; //luminosity of the run of interest (*10^34)
+  double numBunch = 1453; //the number of bunches colliding for the run of interest
+  double runLum = 0.39726;
+  //double runLum = 0.1725; //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputDirectory = "run273301_zeroBias_807intv53p1_HW";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
+  string outputDirectory = "run274157_zeroBias_808intv59p0_HW-EMU";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
   string outputFilename = "output_rates/" + outputDirectory + "/histos.root";
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -43,7 +44,8 @@ void rates(){
     return;
   }
 
-  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807/ZeroBias/crab_Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807__273301_ZeroBias/160518_023920/0000/*.root";
+  // string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807/ZeroBias/crab_Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807__273301_ZeroBias/160518_023920/0000/*.root";
+  string inputFile01 = "/afs/cern.ch/work/s/sbreeze/public/jets_and_sums/160530_r274157_ZeroBias_l1t-v59p0/HW-EMU/Ntuples/*.root";
   // string inputFile02 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias2/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias2/160512_105739/0000/*.root";
   // string inputFile03 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias3/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias3/160512_105752/0000/*.root";
   // string inputFile04 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias4/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias4/160512_105712/0000/*.root";
@@ -302,19 +304,26 @@ void rates(){
       double tauISOEt_2 = 0;
       //tau pt's are not given in descending order
       for (UInt_t c=0; c<l1emu_->nTaus; c++){
-        if (l1emu_->tauEt[c] > tauISOEt_1 && l1emu_->tauIso[c]==1){
+        if (l1emu_->tauEt[c] > tauISOEt_1 && l1emu_->tauIso[c]>0){
           tauISOEt_2 = tauISOEt_1;
           tauISOEt_1 = l1emu_->tauEt[c];
         }
-        else if (l1emu_->tauEt[c] <= tauISOEt_1 && l1emu_->tauEt[c] > tauISOEt_2 && l1emu_->tauIso[c]==1){
+        else if (l1emu_->tauEt[c] <= tauISOEt_1 && l1emu_->tauEt[c] > tauISOEt_2 && l1emu_->tauIso[c]>0){
           tauISOEt_2 = l1emu_->tauEt[c];
         }
       }
 
-      double htSum = l1emu_->sumEt[1];
-      double mhtSum = l1emu_->sumEt[3];
-      double etSum = l1emu_->sumEt[0];
-      double metSum = l1emu_->sumEt[2];
+      double htSum(0.0);
+      double mhtSum(0.0);
+      double etSum(0.0);
+      double metSum(0.0);
+      for (unsigned int c=0; c<l1hw_->nSums; c++){
+          if( l1hw_->sumBx[c] != 0 ) continue;
+          if( l1hw_->sumType[c] == L1Analysis::kTotalEt ) etSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kTotalHt ) htSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kMissingEt ) metSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kMissingHt ) mhtSum = l1hw_->sumEt[c];
+      }
 
       // fill the distributions
       leadingJetDist_emu->Fill(jetEt_1);
@@ -472,11 +481,11 @@ void rates(){
       double tauISOEt_2 = 0;
       //tau pt's are not given in descending order
       for (UInt_t c=0; c<l1hw_->nTaus; c++){
-        if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] > tauISOEt_1 && l1hw_->tauIso[c]==1){
+        if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] > tauISOEt_1 && l1hw_->tauIso[c]>0){
           tauISOEt_2 = tauISOEt_1;
           tauISOEt_1 = l1hw_->tauEt[c];
         }
-        else if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] <= tauISOEt_1 && l1hw_->tauEt[c] > tauISOEt_2 && l1hw_->tauIso[c]==1){
+        else if (l1hw_->tauBx[c]==0 && l1hw_->tauEt[c] <= tauISOEt_1 && l1hw_->tauEt[c] > tauISOEt_2 && l1hw_->tauIso[c]>0){
           tauISOEt_2 = l1hw_->tauEt[c];
         }
       }
@@ -486,12 +495,12 @@ void rates(){
       double etSum = 0;
       double metSum = 0;
       // HW includes -2,-1,0,1,2 bx info (hence the different numbers, could cause a seg fault if this changes)
-      for (unsigned int c=0; c<l1hw_->sumEt.size(); c++){
-
-        if (l1hw_->sumType[c]==0 && l1hw_->sumBx[c]==0) etSum = l1hw_->sumEt[c];
-        if (l1hw_->sumType[c]==1 && l1hw_->sumBx[c]==0) htSum = l1hw_->sumEt[c];
-        if (l1hw_->sumType[c]==2 && l1hw_->sumBx[c]==0) metSum = l1hw_->sumEt[c];
-        if (l1hw_->sumType[c]==3 && l1hw_->sumBx[c]==0) mhtSum = l1hw_->sumEt[c];                
+      for (unsigned int c=0; c<l1hw_->nSums; c++){
+          if( l1hw_->sumBx[c] != 0 ) continue;
+          if( l1hw_->sumType[c] == L1Analysis::kTotalEt ) etSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kTotalHt ) htSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kMissingEt ) metSum = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kMissingHt ) mhtSum = l1hw_->sumEt[c];
       }
 
       // fill the distributions
