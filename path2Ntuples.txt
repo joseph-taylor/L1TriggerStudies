@@ -2,9 +2,16 @@ dir names for outputs
 && the corresponding paths to input ntuples
 
 
+
+run274199_zeroBias_809intv61p1_RECOHWEMU:
+root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v61p1/ZeroBias/crab_Collision2016-wRECO-l1t-integration-v61p1__274199_ZeroBias/160603_235416/0000/L1Ntuple_*.root
+
+
+
+
+
 runXXXXXX_singleMuon_807intv48p0_RECOHW:
 root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root
-
 
 
 

@@ -8,14 +8,15 @@
 #include <string>
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 /* TODO: put errors in rates...
 creates the the rates and distributions for l1 trigger objects
 How to use:
-1. select HW, emu, or both for the analysis (~lines 25,26)
-2. input the number of bunches in the run (~line 33)
-3. input the instantaneous luminosity of the run (~line 34) [only if we scale to 2016 nominal]
-4. change the outputFilename (~line 37) ***runNumber, triggerType, version, hw/emu/both, rescaleORnot***
-5. set the .root inputFile string (~line 45)
+1. select HW, emu, or both for the analysis (~lines 27,28)
+2. input the number of bunches in the run (~line 35)
+3. input the instantaneous luminosity of the run (~line 36) [only if we scale to 2016 nominal]
+4. change the outputFilename (~line 39) ***runNumber, triggerType, version, hw/emu/both, rescaleORnot***
+5. set the .root inputFile string (~line 47)
    ...path2Ntuples.txt should hold most useful paths
 6. select whether you rescale to L=1.5e34 (~line560??...) generally have it setup to rescale
 nb: for 2&3 I have provided the info in runInfoForRates.txt
@@ -31,12 +32,11 @@ void rates(){
     return;
   }
 
-  double numBunch = 1453; //the number of bunches colliding for the run of interest
-  double runLum = 0.39726;
-  //double runLum = 0.1725; //luminosity of the run of interest (*10^34)
+  double numBunch = 1740; //the number of bunches colliding for the run of interest
+  double runLum = 0.44;  //luminosity of the run of interest (*10^34)
   double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputDirectory = "run274157_zeroBias_808intv59p0_HW-EMU";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
+  string outputDirectory = "run274199_zeroBias_809intv61p1_RECOHWEMU";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
   string outputFilename = "output_rates/" + outputDirectory + "/histos.root";
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -44,8 +44,7 @@ void rates(){
     return;
   }
 
-  // string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807/ZeroBias/crab_Collision2016-unpacked-l1t-integration-v53p1-CMSSW-807__273301_ZeroBias/160518_023920/0000/*.root";
-  string inputFile01 = "/afs/cern.ch/work/s/sbreeze/public/jets_and_sums/160530_r274157_ZeroBias_l1t-v59p0/HW-EMU/Ntuples/*.root";
+  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v61p1/ZeroBias/crab_Collision2016-wRECO-l1t-integration-v61p1__274199_ZeroBias/160603_235416/0000/L1Ntuple_*.root";
   // string inputFile02 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias2/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias2/160512_105739/0000/*.root";
   // string inputFile03 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias3/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias3/160512_105752/0000/*.root";
   // string inputFile04 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias4/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias4/160512_105712/0000/*.root";
@@ -70,7 +69,16 @@ void rates(){
   eventTree->Add(inputFile01.c_str()); 
   // eventTree->Add(inputFile02.c_str());
   // eventTree->Add(inputFile03.c_str());
-  // eventTree->Add(inputFile04.c_str());     
+  // eventTree->Add(inputFile04.c_str());
+
+  // In case you want to include PU info
+  // TChain * vtxTree = new TChain("l1RecoTree/RecoTree");
+  // if(binByPileUp){
+  //   vtxTree->Add(inputFile01.c_str());
+  //   // vtxTree->Add(inputFile02.c_str());
+  //   // vtxTree->Add(inputFile03.c_str());
+  //   // vtxTree->Add(inputFile04.c_str());
+  // }
 
   L1Analysis::L1AnalysisL1UpgradeDataFormat    *l1emu_ = new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   treeL1emu->SetBranchAddress("L1Upgrade", &l1emu_);
@@ -78,6 +86,9 @@ void rates(){
   treeL1hw->SetBranchAddress("L1Upgrade", &l1hw_);
   L1Analysis::L1AnalysisEventDataFormat    *event_ = new L1Analysis::L1AnalysisEventDataFormat();
   eventTree->SetBranchAddress("Event", &event_);
+  // L1Analysis::L1AnalysisRecoVertexDataFormat    *vtx_ = new L1Analysis::L1AnalysisRecoVertexDataFormat();
+  // vtxTree->SetBranchAddress("Vertex", &vtx_);
+
 
   // get number of entries
   Long64_t nentries;
@@ -155,23 +166,6 @@ void rates(){
   TH1F* etSumRates_emu = new TH1F("etSumRates_emu",axR.c_str(), nEtSumBins, etSumLo, etSumHi);
   TH1F* metSumRates_emu = new TH1F("metSumRates_emu",axR.c_str(), nMetSumBins, metSumLo, metSumHi); 
   
-  TH1F* leadingJetDist_emu = new TH1F("leadingJetDist_emu", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* secondJetDist_emu = new TH1F("secondJetDist_emu", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* thirdJetDist_emu = new TH1F("thirdJetDist_emu", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* fourthJetDist_emu = new TH1F("fourthJetDist_emu", axD.c_str(), nJetBins, jetLo, jetHi);            
-  TH1F* htSumDist_emu = new TH1F("htSumDist_emu",axD.c_str(), nHtSumBins, htSumLo, htSumHi);
-  TH1F* mhtSumDist_emu = new TH1F("mhtSumDist_emu",axD.c_str(), nMhtSumBins, mhtSumLo, mhtSumHi);
-  TH1F* etSumDist_emu = new TH1F("etSumDist_emu",axD.c_str(), nEtSumBins, etSumLo, etSumHi);
-  TH1F* metSumDist_emu = new TH1F("metSumDist_emu",axD.c_str(), nMetSumBins, metSumLo, metSumHi); 
-  TH1F* leadingEgDist_emu = new TH1F("leadingEgDist_emu", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* secondEgDist_emu = new TH1F("secondEgDist_emu", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* leadingTauDist_emu = new TH1F("leadingTauDist_emu", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* secondTauDist_emu = new TH1F("secondTauDist_emu", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* leadingISOEgDist_emu = new TH1F("leadingISOEgDist_emu", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* secondISOEgDist_emu = new TH1F("secondISOEgDist_emu", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* leadingISOTauDist_emu = new TH1F("leadingISOTauDist_emu", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* secondISOTauDist_emu = new TH1F("secondISOTauDist_emu", axD.c_str(), nTauBins, tauLo, tauHi);
-
   TH1F* singleJetRates_hw = new TH1F("singleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
   TH1F* doubleJetRates_hw = new TH1F("doubleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
   TH1F* tripleJetRates_hw = new TH1F("tripleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
@@ -188,29 +182,13 @@ void rates(){
   TH1F* mhtSumRates_hw = new TH1F("mhtSumRates_hw",axR.c_str(), nMhtSumBins, mhtSumLo, mhtSumHi);
   TH1F* etSumRates_hw = new TH1F("etSumRates_hw",axR.c_str(), nEtSumBins, etSumLo, etSumHi);
   TH1F* metSumRates_hw = new TH1F("metSumRates_hw",axR.c_str(), nMetSumBins, metSumLo, metSumHi); 
-  
-  TH1F* leadingJetDist_hw = new TH1F("leadingJetDist_hw", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* secondJetDist_hw = new TH1F("secondJetDist_hw", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* thirdJetDist_hw = new TH1F("thirdJetDist_hw", axD.c_str(), nJetBins, jetLo, jetHi);
-  TH1F* fourthJetDist_hw = new TH1F("fourthJetDist_hw", axD.c_str(), nJetBins, jetLo, jetHi);            
-  TH1F* htSumDist_hw = new TH1F("htSumDist_hw",axD.c_str(), nHtSumBins, htSumLo, htSumHi);
-  TH1F* mhtSumDist_hw = new TH1F("mhtSumDist_hw",axD.c_str(), nMhtSumBins, mhtSumLo, mhtSumHi);
-  TH1F* etSumDist_hw = new TH1F("etSumDist_hw",axD.c_str(), nEtSumBins, etSumLo, etSumHi);
-  TH1F* metSumDist_hw = new TH1F("metSumDist_hw",axD.c_str(), nMetSumBins, metSumLo, metSumHi); 
-  TH1F* leadingEgDist_hw = new TH1F("leadingEgDist_hw", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* secondEgDist_hw = new TH1F("secondEgDist_hw", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* leadingTauDist_hw = new TH1F("leadingTauDist_hw", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* secondTauDist_hw = new TH1F("secondTauDist_hw", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* leadingISOEgDist_hw = new TH1F("leadingISOEgDist_hw", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* secondISOEgDist_hw = new TH1F("secondISOEgDist_hw", axD.c_str(), nEgBins, egLo, egHi);
-  TH1F* leadingISOTauDist_hw = new TH1F("leadingISOTauDist_hw", axD.c_str(), nTauBins, tauLo, tauHi);
-  TH1F* secondISOTauDist_hw = new TH1F("secondISOTauDist_hw", axD.c_str(), nTauBins, tauLo, tauHi);
 
   /////////////////////////////////
   // loop through all the entries//
   /////////////////////////////////
   for (Long64_t jentry=0; jentry<nentries; jentry++){
     if((jentry%10000)==0) std::cout << "Done " << jentry  << " events of " << nentries << std::endl;
+
 
     //lumi break clause
     eventTree->GetEntry(jentry);
@@ -317,31 +295,13 @@ void rates(){
       double mhtSum(0.0);
       double etSum(0.0);
       double metSum(0.0);
-      for (unsigned int c=0; c<l1hw_->nSums; c++){
-          if( l1hw_->sumBx[c] != 0 ) continue;
-          if( l1hw_->sumType[c] == L1Analysis::kTotalEt ) etSum = l1hw_->sumEt[c];
-          if( l1hw_->sumType[c] == L1Analysis::kTotalHt ) htSum = l1hw_->sumEt[c];
-          if( l1hw_->sumType[c] == L1Analysis::kMissingEt ) metSum = l1hw_->sumEt[c];
-          if( l1hw_->sumType[c] == L1Analysis::kMissingHt ) mhtSum = l1hw_->sumEt[c];
+      for (unsigned int c=0; c<l1emu_->nSums; c++){
+          if( l1emu_->sumBx[c] != 0 ) continue;
+          if( l1emu_->sumType[c] == L1Analysis::kTotalEt ) etSum = l1emu_->sumEt[c];
+          if( l1emu_->sumType[c] == L1Analysis::kTotalHt ) htSum = l1emu_->sumEt[c];
+          if( l1emu_->sumType[c] == L1Analysis::kMissingEt ) metSum = l1emu_->sumEt[c];
+          if( l1emu_->sumType[c] == L1Analysis::kMissingHt ) mhtSum = l1emu_->sumEt[c];
       }
-
-      // fill the distributions
-      leadingJetDist_emu->Fill(jetEt_1);
-      secondJetDist_emu->Fill(jetEt_2);
-      thirdJetDist_emu->Fill(jetEt_3);
-      fourthJetDist_emu->Fill(jetEt_4);
-      htSumDist_emu->Fill(htSum);
-      mhtSumDist_emu->Fill(mhtSum);
-      etSumDist_emu->Fill(etSum);
-      metSumDist_emu->Fill(metSum);
-      leadingEgDist_emu->Fill(egEt_1);
-      secondEgDist_emu->Fill(egEt_2);
-      leadingTauDist_emu->Fill(tauEt_1);
-      secondTauDist_emu->Fill(tauEt_2);
-      leadingISOEgDist_emu->Fill(egISOEt_1);
-      secondISOEgDist_emu->Fill(egISOEt_2);
-      leadingISOTauDist_emu->Fill(tauISOEt_1);
-      secondISOTauDist_emu->Fill(tauISOEt_2);
 
       // for each bin fill according to whether our object has a larger corresponding energy
       for(int bin=0; bin<nJetBins; bin++){
@@ -406,8 +366,12 @@ void rates(){
 
       for(int bin=0; bin<nMetSumBins; bin++){
         if( (metSum) >= metSumLo+(bin*metSumBinWidth) ) metSumRates_emu->Fill(metSumLo+(bin*metSumBinWidth)); //GeV           
-      }  
+      }
+
     }// closes if 'emuOn' is true
+
+
+
 
 
     //do routine for L1 hardware quantities
@@ -503,24 +467,6 @@ void rates(){
           if( l1hw_->sumType[c] == L1Analysis::kMissingHt ) mhtSum = l1hw_->sumEt[c];
       }
 
-      // fill the distributions
-      leadingJetDist_hw->Fill(jetEt_1);
-      secondJetDist_hw->Fill(jetEt_2);
-      thirdJetDist_hw->Fill(jetEt_3);
-      fourthJetDist_hw->Fill(jetEt_4);
-      htSumDist_hw->Fill(htSum);
-      mhtSumDist_hw->Fill(mhtSum);
-      etSumDist_hw->Fill(etSum);
-      metSumDist_hw->Fill(metSum);
-      leadingEgDist_hw->Fill(egEt_1);
-      secondEgDist_hw->Fill(egEt_2);
-      leadingTauDist_hw->Fill(tauEt_1);
-      secondTauDist_hw->Fill(tauEt_2);
-      leadingISOEgDist_hw->Fill(egISOEt_1);
-      secondISOEgDist_hw->Fill(egISOEt_2);
-      leadingISOTauDist_hw->Fill(tauISOEt_1);
-      secondISOTauDist_hw->Fill(tauISOEt_2);
-
       // for each bin fill according to whether our object has a larger corresponding energy
       for(int bin=0; bin<nJetBins; bin++){
         if( (jetEt_1) >= jetLo + (bin*jetBinWidth) ) singleJetRates_hw->Fill(jetLo+(bin*jetBinWidth));  //GeV
@@ -584,7 +530,8 @@ void rates(){
 
       for(int bin=0; bin<nMetSumBins; bin++){
         if( (metSum) >= metSumLo+(bin*metSumBinWidth) ) metSumRates_hw->Fill(metSumLo+(bin*metSumBinWidth)); //GeV           
-      }  
+      } 
+
     }// closes if 'hwOn' is true
 
   }// closes loop through events
@@ -593,6 +540,7 @@ void rates(){
   // normalisation factor for rate histograms (11kHz in the orbit frequency)
   // double norm = 11246*(numBunch/goodLumiEventCount); // no lumi rescale
   double norm = 11246*(numBunch/goodLumiEventCount)*(expectedLum/runLum); //scale to nominal lumi
+
 
   if (emuOn){
     singleJetRates_emu->Scale(norm);
@@ -613,7 +561,7 @@ void rates(){
     metSumRates_emu->Scale(norm);
 
     //set the errors for the rates
-    //want error -> error * sqrt(norm)
+    //want error -> error * sqrt(norm) ?
 
     singleJetRates_emu->Write();
     doubleJetRates_emu->Write();
@@ -631,23 +579,6 @@ void rates(){
     mhtSumRates_emu->Write();
     etSumRates_emu->Write();
     metSumRates_emu->Write();
-
-    leadingJetDist_emu->Write();
-    secondJetDist_emu->Write();
-    thirdJetDist_emu->Write();
-    fourthJetDist_emu->Write();
-    htSumDist_emu->Write();
-    mhtSumDist_emu->Write();
-    etSumDist_emu->Write();
-    metSumDist_emu->Write();
-    leadingEgDist_emu->Write();
-    secondEgDist_emu->Write();
-    leadingTauDist_emu->Write();
-    secondTauDist_emu->Write();
-    leadingISOEgDist_emu->Write();
-    secondISOEgDist_emu->Write();
-    leadingISOTauDist_emu->Write();
-    secondISOTauDist_emu->Write();
   }
 
   if (hwOn){
@@ -684,23 +615,6 @@ void rates(){
     mhtSumRates_hw->Write();
     etSumRates_hw->Write();
     metSumRates_hw->Write();
-
-    leadingJetDist_hw->Write();
-    secondJetDist_hw->Write();
-    thirdJetDist_hw->Write();
-    fourthJetDist_hw->Write();
-    htSumDist_hw->Write();
-    mhtSumDist_hw->Write();
-    etSumDist_hw->Write();
-    metSumDist_hw->Write();
-    leadingEgDist_hw->Write();
-    secondEgDist_hw->Write();
-    leadingTauDist_hw->Write();
-    secondTauDist_hw->Write();
-    leadingISOEgDist_hw->Write();
-    secondISOEgDist_hw->Write();
-    leadingISOTauDist_hw->Write();
-    secondISOTauDist_hw->Write();
   }
   myfile << "using the following ntuple: " << inputFile01 << endl;
   myfile << "number of colliding bunches = " << numBunch << endl;

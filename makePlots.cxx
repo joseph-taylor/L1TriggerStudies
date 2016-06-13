@@ -9,6 +9,7 @@
 #include <TLatex.h>
 #include <string>
 #include <iostream>
+// #include "tdrstyle.C" // new inclusion
 
 //TODO: insert error message explanations/terminations to avoid seg faults...
 // && sort out energy sums width fit vector... && ratio box slickness...
@@ -31,7 +32,7 @@ class rootPlotMaker{
     vector<TF1*> turnOnFits;
     vector<TH1F*> numeratorObjects;
     TH1F * denominatorObject;    	
-	TCanvas * canvas = new TCanvas("canvas", "", 650, 600);
+	TCanvas * canvas = new TCanvas("canvas", "", 600, 600);
 	TLegend legend;
 	TLatex additionalText;
 public:
@@ -63,8 +64,13 @@ public:
 
 void makePlots(){
 
+
+	// setTDRStyle(); // new addition
+
+
 	// ***select one of the routines***
 	string plotSetType = "rates_hwEmu";
+	// string plotSetType = "rates_hwEmuPU";
 	//string plotSetType = "rates_emuOnly";
 	//string plotSetType = "rates_hwOnly";
 	// string plotSetType = "rates_emuCompare"; //nb: currently need to change legend names by hand
@@ -74,7 +80,7 @@ void makePlots(){
 	// string plotSetType = "esums";
 
 	// ***set unique parameters***
-	string directoryName = "output_rates/run274157_zeroBias_808intv59p0_HW-EMU/"; //also the directory where we save final plots
+	string directoryName = "output_rates/run274199_zeroBias_809intv61p1_RECOHWEMU/"; //also the directory where we save final plots
 	string secondFileDirectoryName = "output_rates/run274157_zeroBias_808intv59p0_HW/"; //only used if reading a second file (rates_emuCompare or rates_hwEmuDiffFiles)
 	
 	string inputFileName = "histos.root"; // should have set up analysis macros to name output this filename
@@ -191,132 +197,142 @@ void makePlots(){
 
 
 
-
 	if (plotSetType=="rates_hwEmu"){
+
+		string additionalTextString = "CMS preliminary, run274199, L_{inst}=0.44x10^{34}cm^{-2}s^{-1}";
 
 		rootPlotMaker plot_vx5;
 		vector<string> histoNames_vx5;
-		histoNames_vx5.push_back("etSumRates_emu");
 		histoNames_vx5.push_back("etSumRates_hw");
-		histoNames_vx5.push_back("htSumRates_emu");   
-		histoNames_vx5.push_back("htSumRates_hw");     
+		histoNames_vx5.push_back("etSumRates_emu");
+		histoNames_vx5.push_back("htSumRates_hw");   
+		histoNames_vx5.push_back("htSumRates_emu");     
 		vector<string> legIconNames_vx5;
-		legIconNames_vx5.push_back("Total E_{T} emu");
-		legIconNames_vx5.push_back("Total E_{T} hw");
-		legIconNames_vx5.push_back("Total H_{T} emu");
-		legIconNames_vx5.push_back("Total H_{T} hw");
+		legIconNames_vx5.push_back("Total E_{T} Hardware");
+		legIconNames_vx5.push_back("Total E_{T} Emulator");
+		legIconNames_vx5.push_back("Total H_{T} Hardware");
+		legIconNames_vx5.push_back("Total H_{T} Emulator");
 		plot_vx5.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx5,histogramLineWidths_alt23,
 									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
-		// plot_vx5.setXaxisRange(0,600);
+		plot_vx5.setXaxisRange(0,400);
 		plot_vx5.turnGridLinesOn();
 		plot_vx5.turnLogYon();
-		plot_vx5.insertLegend(legIconNames_vx5, 0.55, 0.90, 0.55, 0.90);
+		plot_vx5.insertAdditionalText(additionalTextString.c_str());
+		plot_vx5.setAdditionalTextLocation(0.1,8.8);
+		plot_vx5.insertLegend(legIconNames_vx5, 0.50, 0.88, 0.70, 0.90);
+		plot_vx5.setAxisTitleSize(0.04,0.04);
 		plot_vx5.plotAndSave(11, directoryName.c_str(), "rates_et_ht_emuHw.pdf");
 
 
 		rootPlotMaker plot_vx6;
 		vector<string> histoNames_vx6;
-		histoNames_vx6.push_back("metSumRates_emu");
 		histoNames_vx6.push_back("metSumRates_hw");
-		histoNames_vx6.push_back("mhtSumRates_emu");   
-		histoNames_vx6.push_back("mhtSumRates_hw");     
+		histoNames_vx6.push_back("metSumRates_emu");
+		histoNames_vx6.push_back("mhtSumRates_hw");   
+		histoNames_vx6.push_back("mhtSumRates_emu");     
 		vector<string> legIconNames_vx6;
-		legIconNames_vx6.push_back("Missing E_{T} emu");
-		legIconNames_vx6.push_back("Missing E_{T} hw");
-		legIconNames_vx6.push_back("Missing H_{T} emu");
-		legIconNames_vx6.push_back("Missing H_{T} hw");
+		legIconNames_vx6.push_back("Missing E_{T} Hardware");
+		legIconNames_vx6.push_back("Missing E_{T} Emulator");
+		legIconNames_vx6.push_back("Missing H_{T} Hardware");
+		legIconNames_vx6.push_back("Missing H_{T} Emulator");
 		plot_vx6.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx6,histogramLineWidths_alt23,
 									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
-		// plot_vx6.setXaxisRange(0,300);
+		plot_vx6.setXaxisRange(0,120);
 		plot_vx6.turnGridLinesOn();
 		plot_vx6.turnLogYon();
-		plot_vx6.insertLegend(legIconNames_vx6, 0.55, 0.90, 0.55, 0.90);
+		plot_vx6.insertAdditionalText(additionalTextString.c_str());
+		plot_vx6.setAdditionalTextLocation(0.1,8.8);
+		plot_vx6.insertLegend(legIconNames_vx6, 0.52, 0.88, 0.70, 0.90);
+		plot_vx6.setAxisTitleSize(0.04,0.04);		
 		plot_vx6.plotAndSave(11, directoryName.c_str(), "rates_met_mht_emuHw.pdf");
 
 
 		rootPlotMaker plot_vx7;
 		vector<string> histoNames_vx7;
-		histoNames_vx7.push_back("singleJetRates_emu");
 		histoNames_vx7.push_back("singleJetRates_hw");
-		histoNames_vx7.push_back("doubleJetRates_emu");
+		histoNames_vx7.push_back("singleJetRates_emu");
 		histoNames_vx7.push_back("doubleJetRates_hw");
-		histoNames_vx7.push_back("tripleJetRates_emu");
+		histoNames_vx7.push_back("doubleJetRates_emu");
 		histoNames_vx7.push_back("tripleJetRates_hw");
-		histoNames_vx7.push_back("quadJetRates_emu");
-		histoNames_vx7.push_back("quadJetRates_hw");     
+		histoNames_vx7.push_back("tripleJetRates_emu");
+		histoNames_vx7.push_back("quadJetRates_hw");
+		histoNames_vx7.push_back("quadJetRates_emu");     
 		vector<string> legIconNames_vx7;
-		legIconNames_vx7.push_back("SingleJet emu");
-		legIconNames_vx7.push_back("SingleJet hw");
-		legIconNames_vx7.push_back("DoubleJet emu");
-		legIconNames_vx7.push_back("DoubleJet hw");
-		legIconNames_vx7.push_back("TripleJet emu");
-		legIconNames_vx7.push_back("TripleJet hw");
-		legIconNames_vx7.push_back("QuadJet emu");
-		legIconNames_vx7.push_back("QuadJet hw");
+		legIconNames_vx7.push_back("SingleJet Hardware");
+		legIconNames_vx7.push_back("SingleJet Emulator");
+		legIconNames_vx7.push_back("DoubleJet Hardware");
+		legIconNames_vx7.push_back("DoubleJet Emulator");
+		legIconNames_vx7.push_back("TripleJet Hardware");
+		legIconNames_vx7.push_back("TripleJet Emulator");
+		legIconNames_vx7.push_back("QuadJet Hardware");
+		legIconNames_vx7.push_back("QuadJet Emulator");
 		plot_vx7.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx7,histogramLineWidths_alt23,
 									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
-		// plot_vx7.setXaxisRange(0,400);		
+		plot_vx7.setXaxisRange(0,300);		
 		plot_vx7.turnGridLinesOn();
 		plot_vx7.turnLogYon();
-		plot_vx7.insertLegend(legIconNames_vx7, 0.55, 0.90, 0.55, 0.90);
+		plot_vx7.insertAdditionalText(additionalTextString.c_str());
+		plot_vx7.setAdditionalTextLocation(0.1,8.8);
+		plot_vx7.insertLegend(legIconNames_vx7, 0.45, 0.88, 0.60, 0.90);
+		plot_vx7.setAxisTitleSize(0.04,0.04);		
 		plot_vx7.plotAndSave(11, directoryName.c_str(), "rates_jets1234_emuHw.pdf");
 
 
-		rootPlotMaker plot_vx8;
-		vector<string> histoNames_vx8;
-		histoNames_vx8.push_back("singleEgRates_emu");
-		histoNames_vx8.push_back("singleEgRates_hw");
-		histoNames_vx8.push_back("singleISOEgRates_emu");
-		histoNames_vx8.push_back("singleISOEgRates_hw");		
-		histoNames_vx8.push_back("doubleEgRates_emu");
-		histoNames_vx8.push_back("doubleEgRates_hw");
-		histoNames_vx8.push_back("doubleISOEgRates_emu");
-		histoNames_vx8.push_back("doubleISOEgRates_hw");
-		vector<string> legIconNames_vx8;
-		legIconNames_vx8.push_back("SingleEG emu");
-		legIconNames_vx8.push_back("SingleEG hw");
-		legIconNames_vx8.push_back("isoSingleEG emu");
-		legIconNames_vx8.push_back("isoSingleEG hw");
-		legIconNames_vx8.push_back("DoubleEG emu");
-		legIconNames_vx8.push_back("DoubleEG hw");
-		legIconNames_vx8.push_back("isoDoubleEG emu");
-		legIconNames_vx8.push_back("isoDoubleEG hw");
-		plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_alt23,
-									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
-		plot_vx8.setXaxisRange(0,200);
-		plot_vx8.turnGridLinesOn();
-		plot_vx8.turnLogYon();
-		plot_vx8.insertLegend(legIconNames_vx8, 0.55, 0.90, 0.55, 0.90);
-		plot_vx8.plotAndSave(11, directoryName.c_str(), "rates_eg12_emuHw.pdf");
+		// rootPlotMaker plot_vx8;
+		// vector<string> histoNames_vx8;
+		// histoNames_vx8.push_back("singleEgRates_emu");
+		// histoNames_vx8.push_back("singleEgRates_hw");
+		// histoNames_vx8.push_back("singleISOEgRates_emu");
+		// histoNames_vx8.push_back("singleISOEgRates_hw");		
+		// histoNames_vx8.push_back("doubleEgRates_emu");
+		// histoNames_vx8.push_back("doubleEgRates_hw");
+		// histoNames_vx8.push_back("doubleISOEgRates_emu");
+		// histoNames_vx8.push_back("doubleISOEgRates_hw");
+		// vector<string> legIconNames_vx8;
+		// legIconNames_vx8.push_back("SingleEG emu");
+		// legIconNames_vx8.push_back("SingleEG hw");
+		// legIconNames_vx8.push_back("isoSingleEG emu");
+		// legIconNames_vx8.push_back("isoSingleEG hw");
+		// legIconNames_vx8.push_back("DoubleEG emu");
+		// legIconNames_vx8.push_back("DoubleEG hw");
+		// legIconNames_vx8.push_back("isoDoubleEG emu");
+		// legIconNames_vx8.push_back("isoDoubleEG hw");
+		// plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_alt23,
+		// 							   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		// plot_vx8.setXaxisRange(0,200);
+		// plot_vx8.turnGridLinesOn();
+		// plot_vx8.turnLogYon();
+		// plot_vx8.insertLegend(legIconNames_vx8, 0.55, 0.90, 0.55, 0.90);
+		// plot_vx8.plotAndSave(11, directoryName.c_str(), "rates_eg12_emuHw.pdf");
 
 
-		rootPlotMaker plot_vx9;
-		vector<string> histoNames_vx9;
-  		histoNames_vx9.push_back("singleTauRates_emu");
-		histoNames_vx9.push_back("singleTauRates_hw");
-  		histoNames_vx9.push_back("singleISOTauRates_emu");
-		histoNames_vx9.push_back("singleISOTauRates_hw");		
-		histoNames_vx9.push_back("doubleTauRates_emu");
-		histoNames_vx9.push_back("doubleTauRates_hw");   
-		histoNames_vx9.push_back("doubleISOTauRates_emu");
-		histoNames_vx9.push_back("doubleISOTauRates_hw");  
-		vector<string> legIconNames_vx9;
-		legIconNames_vx9.push_back("SingleTau emu");
-		legIconNames_vx9.push_back("SingleTau hw");
-		legIconNames_vx9.push_back("isoSingleTau emu");
-		legIconNames_vx9.push_back("isoSingleTau hw");
-		legIconNames_vx9.push_back("DoubleTau emu");
-		legIconNames_vx9.push_back("DoubleTau hw");
-		legIconNames_vx9.push_back("isoDoubleTau emu");
-		legIconNames_vx9.push_back("isoDoubleTau hw");
-		plot_vx9.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx9,histogramLineWidths_alt23,
-									   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
+		// rootPlotMaker plot_vx9;
+		// vector<string> histoNames_vx9;
+  // 		histoNames_vx9.push_back("singleTauRates_emu");
+		// histoNames_vx9.push_back("singleTauRates_hw");
+  // 		histoNames_vx9.push_back("singleISOTauRates_emu");
+		// histoNames_vx9.push_back("singleISOTauRates_hw");		
+		// histoNames_vx9.push_back("doubleTauRates_emu");
+		// histoNames_vx9.push_back("doubleTauRates_hw");   
+		// histoNames_vx9.push_back("doubleISOTauRates_emu");
+		// histoNames_vx9.push_back("doubleISOTauRates_hw");  
+		// vector<string> legIconNames_vx9;
+		// legIconNames_vx9.push_back("SingleTau emu");
+		// legIconNames_vx9.push_back("SingleTau hw");
+		// legIconNames_vx9.push_back("isoSingleTau emu");
+		// legIconNames_vx9.push_back("isoSingleTau hw");
+		// legIconNames_vx9.push_back("DoubleTau emu");
+		// legIconNames_vx9.push_back("DoubleTau hw");
+		// legIconNames_vx9.push_back("isoDoubleTau emu");
+		// legIconNames_vx9.push_back("isoDoubleTau hw");
+		// plot_vx9.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx9,histogramLineWidths_alt23,
+		// 							   histogramLineColours_twosDifferent,histogramLineStyles_altSolidDotted);
 
-		plot_vx9.setXaxisRange(0,200);
-		plot_vx9.turnGridLinesOn();
-		plot_vx9.turnLogYon();
-		plot_vx9.insertLegend(legIconNames_vx9, 0.55, 0.90, 0.55, 0.90);
-		plot_vx9.plotAndSave(11, directoryName.c_str(), "rates_tau12_emuHw.pdf");
+		// plot_vx9.setXaxisRange(0,200);
+		// plot_vx9.turnGridLinesOn();
+		// plot_vx9.turnLogYon();
+		// plot_vx9.insertLegend(legIconNames_vx9, 0.55, 0.90, 0.55, 0.90);
+		// plot_vx9.plotAndSave(11, directoryName.c_str(), "rates_tau12_emuHw.pdf");
 
 	} // closes 'if' plotSetType=="rates_hwEmu"
 
@@ -1858,13 +1874,13 @@ void rootPlotMaker::plotAndSave(int plotType, string saveDirName, string savePlo
 
 			TH1F * hratio =(TH1F*)histogramObjects[i]->Clone();
 			hratio->Divide(histogramObjects[i], histogramObjects[i+1]);
-			hratio->GetYaxis()->SetRangeUser(0.5,1.5);
+			hratio->GetYaxis()->SetRangeUser(0.9,1.1);
 			hratio->SetMarkerStyle(21);
 			hratio->SetMarkerSize(0.4);
 			hratio->SetMarkerColor(histogramLineColours_twosDifferent[i]);
 			hratio->GetXaxis()->SetTitle("");
 			hratio->GetXaxis()->SetLabelSize(0);
-			hratio->GetYaxis()->SetTitle("EMU/HW");
+			hratio->GetYaxis()->SetTitle("HW / EMU");
 			hratio->GetYaxis()->SetTitleSize(0.13);
 			hratio->GetYaxis()->SetTitleOffset(0.3);	
 			hratio->GetYaxis()->SetLabelSize(0.1);
