@@ -8,7 +8,7 @@
 #include <math.h>
 #include <vector>
 #include <string>
-
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
 /* 
 creates turnOn efficiencies and comparison histograms for jets
 How to use:
@@ -118,7 +118,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/run273301_singleMuon_807intv53p1_hwPf_tightLepVetoMuMultZero_hfTightJetID_withOfflineCorrectios/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/multipleRuns_singleMuon_v67p0_hwPf_tightLepVetoMuMultZeroCentral_noCutsHf_withOfflineCorrectios/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -134,7 +134,7 @@ void jets(){
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
   TChain * mcTree = new TChain("l1ExtraTreeGenAk4/L1ExtraTree");
 
-  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v53p1-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v53p1-CMSSW-807__273301_SingleMuon/160518_032024/0000/*.root";
+  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v1/160701_221628/0000/*.root";
   // string inputFile02 = "";
   // string inputFile03 = "";
 
@@ -150,6 +150,11 @@ void jets(){
   if (mcOn){
       mcTree->Add("");
   }
+
+  TChain * eventTree = new TChain("l1EventTree/L1EventTree");
+  eventTree->Add(inputFile01.c_str()); 
+  L1Analysis::L1AnalysisEventDataFormat    *event_ = new L1Analysis::L1AnalysisEventDataFormat();
+  eventTree->SetBranchAddress("Event", &event_);  
 
   //Parameters for the script (nb:hf actually is between 3<->5, but this keeps it isolated from edge effects)
   const double refJet_ETmin = 10;                //min ET(GeV) for REF jet to be considered
@@ -345,7 +350,61 @@ void jets(){
   myfile << "total number of events = " << nevent << endl; 
   myfile.close(); 
   for (Long64_t i=0; i<nevent; i++){
-  	
+  
+    //lumi break clause
+    eventTree->GetEntry(i);
+    if (
+           event_->run != 275282
+        || event_->run != 275283
+        || event_->run != 275284
+        || event_->run != 275285
+        || event_->run != 275286
+        || event_->run != 275289
+        || event_->run != 275290
+        || event_->run != 275291
+        || event_->run != 275292
+        || event_->run != 275293
+        || event_->run != 275309
+        || event_->run != 275310
+        || event_->run != 275311
+        || event_->run != 275319
+        || event_->run != 275326
+        || event_->run != 275337
+        || event_->run != 275338
+        || event_->run != 275344
+        || event_->run != 275345
+        || event_->run != 275370
+        || event_->run != 275371
+        || event_->run != 275375
+        || event_->run != 275376
+        || event_->run != 275657
+        || event_->run != 275658
+        || event_->run != 275659
+        || event_->run != 275757
+        || event_->run != 275758
+        || event_->run != 275759
+        || event_->run != 275761
+        || event_->run != 275763
+        || event_->run != 275764
+        || event_->run != 275766
+        || event_->run != 275767
+        || event_->run != 275768
+        || event_->run != 275769
+        || event_->run != 275772
+        || event_->run != 275773
+        || event_->run != 275774
+        || event_->run != 275776
+        || event_->run != 275777
+        || event_->run != 275778
+        || event_->run != 275781
+        || event_->run != 275782
+        || event_->run != 275783                      
+        )
+    {
+      //skip the corresponding event
+      continue;
+    }
+
     if (emuOn){l1emuTree->GetEntry(i);}
     if (hwOn){l1hwTree->GetEntry(i);}
     if (recoOn){recoTree->GetEntry(i);}
