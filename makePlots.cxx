@@ -69,7 +69,7 @@ void makePlots(){
 
 
 	// ***select one of the routines***
-	string plotSetType = "rates_hwEmu";
+	// string plotSetType = "rates_hwEmu";
 	// string plotSetType = "rates_hwEmuPU";
 	//string plotSetType = "rates_emuOnly";
 	//string plotSetType = "rates_hwOnly";
@@ -77,10 +77,10 @@ void makePlots(){
 	// string plotSetType = "rates_hwEmuDiffFiles"; // gah, ratio box stuff needs fixing...
 	//string plotSetType = "rates_hwDiffFiles";
 	// string plotSetType = "jets";
-	// string plotSetType = "esums";
+	string plotSetType = "esums";
 
 	// ***set unique parameters***
-	string directoryName = "output_rates/run274199_zeroBias_809intv61p1_RECOHWEMU/"; //also the directory where we save final plots
+	string directoryName = "output_eSums/multipleRunsB0005_singleMuon_v67p0_hwPf_tightLepVetoMuMultZeroCentral_noCutsHf_withOfflineCorrectios/"; //also the directory where we save final plots
 	string secondFileDirectoryName = "output_rates/run274157_zeroBias_808intv59p0_HW/"; //only used if reading a second file (rates_emuCompare or rates_hwEmuDiffFiles)
 	
 	string inputFileName = "histos.root"; // should have set up analysis macros to name output this filename
@@ -153,9 +153,9 @@ void makePlots(){
 	vector<double> widthVector_jetCentral;
 	widthVector_jetCentral.push_back(10);
 	widthVector_jetCentral.push_back(10);
-	widthVector_jetCentral.push_back(10);
+	widthVector_jetCentral.push_back(15);
 	widthVector_jetCentral.push_back(20);			
-	widthVector_jetCentral.push_back(20);	
+	widthVector_jetCentral.push_back(25);	
 	widthVector_jetCentral.push_back(40);
 	widthVector_jetCentral.push_back(40);
 
@@ -163,10 +163,10 @@ void makePlots(){
 	widthVector_jetHF.push_back(10);
 	widthVector_jetHF.push_back(10);
 	widthVector_jetHF.push_back(10);
-	widthVector_jetHF.push_back(20);			
-	widthVector_jetHF.push_back(20);	
-	widthVector_jetHF.push_back(25);
-	widthVector_jetHF.push_back(20);
+	widthVector_jetHF.push_back(15);			
+	widthVector_jetHF.push_back(15);	
+	widthVector_jetHF.push_back(15);
+	widthVector_jetHF.push_back(15);
 
 	vector<double> widthVector_jetBarrel;
 	widthVector_jetBarrel.push_back(10);
@@ -180,9 +180,9 @@ void makePlots(){
 	vector<double> widthVector_jetEndcap;
 	widthVector_jetEndcap.push_back(10);
 	widthVector_jetEndcap.push_back(10);
-	widthVector_jetEndcap.push_back(10);
+	widthVector_jetEndcap.push_back(20);
 	widthVector_jetEndcap.push_back(20);			
-	widthVector_jetEndcap.push_back(20);	
+	widthVector_jetEndcap.push_back(30);	
 	widthVector_jetEndcap.push_back(40);
 	widthVector_jetEndcap.push_back(40);
 			
@@ -1110,7 +1110,7 @@ void makePlots(){
 
 	if (plotSetType=="jets"){
 
-		string additionalTextString = "CMS preliminary, singleMuon, run273301";
+		string additionalTextString = "Single Muon, multipleRunsB0005";
 
 		rootPlotMaker plot_ve1;
 	    vector<string> histoNums_ve1;
@@ -1505,6 +1505,8 @@ void makePlots(){
 
 	if (plotSetType=="esums"){
 
+		string additionalTextString = "Single Muon, multipleRunsB0005";
+
 		rootPlotMaker plot_ve1;
 	    vector<string> histoNums_ve1;
 	    histoNums_ve1.push_back("hnum_ETT_100");
@@ -1532,7 +1534,10 @@ void makePlots(){
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines,
 						     	   widthVector_jetCentral,false);
 		plot_ve1.insertLegend(legIconNames_ve1, 0.65, 0.85, 0.15, 0.35);
+		plot_ve1.setXaxisRange(0,600);
 		plot_ve1.turnGridLinesOn();
+		plot_ve1.insertAdditionalText(additionalTextString.c_str());
+		plot_ve1.setAdditionalTextLocation(0,1.07);
 		plot_ve1.plotAndSave(31, directoryName.c_str(), "ETT_EfficiencyTurnOns.pdf");
 
 
@@ -1563,8 +1568,11 @@ void makePlots(){
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines,
 						     	   widthVector_jetCentral,true);
 		plot_ve2.insertLegend(legIconNames_ve2, 0.65, 0.85, 0.15, 0.35);
+		plot_ve2.setXaxisRange(0,600);
 		plot_ve2.turnGridLinesOn();
-		plot_ve2.plotAndSave(3, directoryName.c_str(), "HTT_EfficiencyTurnOns.pdf");
+		plot_ve2.insertAdditionalText(additionalTextString.c_str());
+		plot_ve2.setAdditionalTextLocation(0,1.07);
+		plot_ve2.plotAndSave(31, directoryName.c_str(), "HTT_EfficiencyTurnOns.pdf");
 
 
 		rootPlotMaker plot_ve3;
@@ -1588,8 +1596,11 @@ void makePlots(){
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines,
 						     	   widthVector_jetCentral,true);
 		plot_ve3.insertLegend(legIconNames_ve3, 0.65, 0.85, 0.15, 0.35);
+		plot_ve3.setXaxisRange(0,400);
 		plot_ve3.turnGridLinesOn();
-		plot_ve3.plotAndSave(3, directoryName.c_str(), "MET_EfficiencyTurnOns.pdf");
+		plot_ve3.insertAdditionalText(additionalTextString.c_str());
+		plot_ve3.setAdditionalTextLocation(0,1.07);
+		plot_ve3.plotAndSave(31, directoryName.c_str(), "MET_EfficiencyTurnOns.pdf");
 
 
 		rootPlotMaker plot_ve4;
@@ -1613,90 +1624,93 @@ void makePlots(){
 						     	   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines,
 						     	   widthVector_jetCentral,true);
 		plot_ve4.insertLegend(legIconNames_ve4, 0.65, 0.85, 0.15, 0.35);
+		plot_ve4.setXaxisRange(0,400);
 		plot_ve4.turnGridLinesOn();
-		plot_ve4.plotAndSave(3, directoryName.c_str(), "MHT_EfficiencyTurnOns.pdf");
+		plot_ve4.insertAdditionalText(additionalTextString.c_str());
+		plot_ve4.setAdditionalTextLocation(0,1.07);
+		plot_ve4.plotAndSave(31, directoryName.c_str(), "MHT_EfficiencyTurnOns.pdf");
 
 
-		rootPlotMaker plot_vx1;
-		vector<string> histoNames_vx1;
-		histoNames_vx1.push_back("hMETphi_reco");
-		histoNames_vx1.push_back("hMETphi_l1");       
-		vector<string> legIconNames_vx1;
-		legIconNames_vx1.push_back("reco_metPhi");
-		legIconNames_vx1.push_back("l1_metPhi");
-		plot_vx1.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx1,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx1.turnGridLinesOn();
-		plot_vx1.insertLegend(legIconNames_vx1, 0.65, 0.85, 0.65, 0.85);
-		plot_vx1.plotAndSave(1, directoryName.c_str(), "dist_metPhi.pdf");
+		// rootPlotMaker plot_vx1;
+		// vector<string> histoNames_vx1;
+		// histoNames_vx1.push_back("hMETphi_reco");
+		// histoNames_vx1.push_back("hMETphi_l1");       
+		// vector<string> legIconNames_vx1;
+		// legIconNames_vx1.push_back("reco_metPhi");
+		// legIconNames_vx1.push_back("l1_metPhi");
+		// plot_vx1.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx1,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx1.turnGridLinesOn();
+		// plot_vx1.insertLegend(legIconNames_vx1, 0.65, 0.85, 0.65, 0.85);
+		// plot_vx1.plotAndSave(1, directoryName.c_str(), "dist_metPhi.pdf");
 
 
-		rootPlotMaker plot_vx2;
-		vector<string> histoNames_vx2;
-		histoNames_vx2.push_back("hMHTphi_reco");
-		histoNames_vx2.push_back("hMHTphi_l1");       
-		vector<string> legIconNames_vx2;
-		legIconNames_vx2.push_back("reco_mhtPhi");
-		legIconNames_vx2.push_back("l1_mhtPhi");
-		plot_vx2.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx2,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx2.turnGridLinesOn();
-		plot_vx2.insertLegend(legIconNames_vx2, 0.65, 0.85, 0.65, 0.85);
-		plot_vx2.plotAndSave(1, directoryName.c_str(), "dist_mhtPhi.pdf");
+		// rootPlotMaker plot_vx2;
+		// vector<string> histoNames_vx2;
+		// histoNames_vx2.push_back("hMHTphi_reco");
+		// histoNames_vx2.push_back("hMHTphi_l1");       
+		// vector<string> legIconNames_vx2;
+		// legIconNames_vx2.push_back("reco_mhtPhi");
+		// legIconNames_vx2.push_back("l1_mhtPhi");
+		// plot_vx2.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx2,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx2.turnGridLinesOn();
+		// plot_vx2.insertLegend(legIconNames_vx2, 0.65, 0.85, 0.65, 0.85);
+		// plot_vx2.plotAndSave(1, directoryName.c_str(), "dist_mhtPhi.pdf");
 
 
-		rootPlotMaker plot_vx3;
-		vector<string> histoNames_vx3;
-		histoNames_vx3.push_back("hdPhi_MET");   
-		plot_vx3.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx3,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx3.turnGridLinesOn();
-		plot_vx3.plotAndSave(1, directoryName.c_str(), "dPhi_met.pdf");
+		// rootPlotMaker plot_vx3;
+		// vector<string> histoNames_vx3;
+		// histoNames_vx3.push_back("hdPhi_MET");   
+		// plot_vx3.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx3,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx3.turnGridLinesOn();
+		// plot_vx3.plotAndSave(1, directoryName.c_str(), "dPhi_met.pdf");
 
 
-		rootPlotMaker plot_vx4;
-		vector<string> histoNames_vx4;
-		histoNames_vx4.push_back("hdPhi_MHT");    
-		plot_vx4.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx4,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx4.turnGridLinesOn();
-		plot_vx4.plotAndSave(1, directoryName.c_str(), "dPhi_mht.pdf");
+		// rootPlotMaker plot_vx4;
+		// vector<string> histoNames_vx4;
+		// histoNames_vx4.push_back("hdPhi_MHT");    
+		// plot_vx4.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx4,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx4.turnGridLinesOn();
+		// plot_vx4.plotAndSave(1, directoryName.c_str(), "dPhi_mht.pdf");
 
 
-		rootPlotMaker plot_vx5;
-		vector<string> histoNames_vx5;
-		histoNames_vx5.push_back("hdET_ETT");     
-		plot_vx5.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx5,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx5.turnGridLinesOn();
-		plot_vx5.plotAndSave(1, directoryName.c_str(), "dET_ETT.pdf");
+		// rootPlotMaker plot_vx5;
+		// vector<string> histoNames_vx5;
+		// histoNames_vx5.push_back("hdET_ETT");     
+		// plot_vx5.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx5,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx5.turnGridLinesOn();
+		// plot_vx5.plotAndSave(1, directoryName.c_str(), "dET_ETT.pdf");
 
 
-		rootPlotMaker plot_vx6;
-		vector<string> histoNames_vx6;
-		histoNames_vx6.push_back("hdET_HTT");    
-		plot_vx6.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx6,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx6.turnGridLinesOn();
-		plot_vx6.plotAndSave(1, directoryName.c_str(), "dET_HTT.pdf");
+		// rootPlotMaker plot_vx6;
+		// vector<string> histoNames_vx6;
+		// histoNames_vx6.push_back("hdET_HTT");    
+		// plot_vx6.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx6,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx6.turnGridLinesOn();
+		// plot_vx6.plotAndSave(1, directoryName.c_str(), "dET_HTT.pdf");
 
 
-		rootPlotMaker plot_vx7;
-		vector<string> histoNames_vx7;
-		histoNames_vx7.push_back("hdET_MET");    
-		plot_vx7.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx7,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx7.turnGridLinesOn();
-		plot_vx7.plotAndSave(1, directoryName.c_str(), "dET_MET.pdf");
+		// rootPlotMaker plot_vx7;
+		// vector<string> histoNames_vx7;
+		// histoNames_vx7.push_back("hdET_MET");    
+		// plot_vx7.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx7,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx7.turnGridLinesOn();
+		// plot_vx7.plotAndSave(1, directoryName.c_str(), "dET_MET.pdf");
 
 
-		rootPlotMaker plot_vx8;
-		vector<string> histoNames_vx8;
-		histoNames_vx8.push_back("hdET_MHT");    
-		plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_allSize2,
-									   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
-		plot_vx8.turnGridLinesOn();
-		plot_vx8.plotAndSave(1, directoryName.c_str(), "dET_MHT.pdf");
+		// rootPlotMaker plot_vx8;
+		// vector<string> histoNames_vx8;
+		// histoNames_vx8.push_back("hdET_MHT");    
+		// plot_vx8.loadHistogramsInfo(inputFilePath_allSame,histoNames_vx8,histogramLineWidths_allSize2,
+		// 							   histogramLineColours_allDifferent,histogramLineStyles_allSolidLines);
+		// plot_vx8.turnGridLinesOn();
+		// plot_vx8.plotAndSave(1, directoryName.c_str(), "dET_MHT.pdf");
 
 
 		rootPlotMaker plot_vxy1;

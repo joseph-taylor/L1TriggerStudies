@@ -10,7 +10,8 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetFilterDataFormat.h"
-    
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1ExtraDataFormat.h" 
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"   
 /* 
 creates turnOn efficiencies and comparison histograms for energy sums
 How to use:
@@ -20,7 +21,7 @@ How to use:
 
 other option a: can select the efficiency thresholds for each type of esum (~line 182+)
 other option b: can select to whether we apply the reco met filter or not (~line46). Note: Mention on/off in outputDir.
-*/
+*/ 
 
 bool met_filter(Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t,Bool_t);
 double calc_dPHI(double,double);
@@ -55,7 +56,7 @@ void eSums(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_eSums/runXXXXXX_singleMuon_807intv48p0_HW_metFilterOff/"; //***runNumber, triggerType, version, HW/EMU, metFilter?!!***
+  string dirName = "output_eSums/multipleRunsB0005_singleMuon_v67p0_hwPf_tightLepVetoMuMultZeroCentral_noCutsHf_withOfflineCorrectios/"; //***runNumber, triggerType, version, HW/EMU, metFilter?!!***
   string outputFilename = dirName + "histos.root";
   TFile *kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -64,10 +65,10 @@ void eSums(){
   }
   cout << "Loading up the TChains..." << endl;
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
-  recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
+  recoTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v2/160702_220353/0005/*.root");
 
   TChain * metFilterTree = new TChain("l1MetFilterRecoTree/MetFilterRecoTree");
-  metFilterTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
+  metFilterTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v2/160702_220353/0005/*.root");
 
   TChain * l1emuTree = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   if (emuOn){
@@ -76,8 +77,13 @@ void eSums(){
 
   TChain * l1hwTree = new TChain("l1UpgradeTree/L1UpgradeTree");
   if (hwOn){
-    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-RECO-l1t-integration-v48p0-CMSSW-807/SingleMuon/crab_Collision2016-RECO-l1t-integration-v48p0-CMSSW-807__SingleMuon/160511_154953/0000/*.root");
+    l1hwTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v2/160702_220353/0005/*.root");
   }
+
+  TChain * eventTree = new TChain("l1EventTree/L1EventTree");
+  eventTree->Add("root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v2/160702_220353/0005/*.root"); 
+  L1Analysis::L1AnalysisEventDataFormat    *event_ = new L1Analysis::L1AnalysisEventDataFormat();
+  eventTree->SetBranchAddress("Event", &event_);  
 
   //load the number of event entries
   Int_t nevent = (Int_t)recoTree->GetEntries();
@@ -140,7 +146,7 @@ void eSums(){
   // turnOn bins
   int nTurnOnBinsETT = 40;
   float turnOnLoETT = 0;
-  float turnOnHiETT = 3000;
+  float turnOnHiETT = 1000;
 
   int nTurnOnBinsMET = 40;
   float turnOnLoMET = 0;
@@ -148,7 +154,7 @@ void eSums(){
 
   int nTurnOnBinsHTT = 40;
   float turnOnLoHTT = 0;
-  float turnOnHiHTT = 3000;
+  float turnOnHiHTT = 1000;
 
   int nTurnOnBinsMHT = 40;
   float turnOnLoMHT = 0;
@@ -183,6 +189,7 @@ void eSums(){
   thresholdsVectorMET.push_back(60);
   thresholdsVectorMET.push_back(80);
   thresholdsVectorMET.push_back(100);
+  thresholdsVectorMET.push_back(120);
 
   vector<int> thresholdsVectorHTT;
   thresholdsVectorHTT.push_back(100);
@@ -197,6 +204,7 @@ void eSums(){
   thresholdsVectorMHT.push_back(60);
   thresholdsVectorMHT.push_back(80);
   thresholdsVectorMHT.push_back(100);
+  thresholdsVectorMHT.push_back(120);
 
   for (unsigned int c=0; c<thresholdsVectorETT.size(); c++){
     string thresholdString = to_string(thresholdsVectorETT[c]);
@@ -230,7 +238,66 @@ void eSums(){
   //loop through all the events//
   ///////////////////////////////
  for (Int_t i=0; i<nevent; i++){
-			
+ 
+    if (i % 10000 == 0){
+    cout << i << " out of " << nevent << endl;} 	
+
+    // //lumi break clause
+    eventTree->GetEntry(i);
+    if (
+           event_->run != 275282
+        && event_->run != 275283
+        && event_->run != 275284
+        && event_->run != 275285
+        && event_->run != 275286
+        && event_->run != 275289
+        && event_->run != 275290
+        && event_->run != 275291
+        && event_->run != 275292
+        && event_->run != 275293
+        && event_->run != 275309
+        && event_->run != 275310
+        && event_->run != 275311
+        && event_->run != 275319
+        && event_->run != 275326
+        && event_->run != 275337
+        && event_->run != 275338
+        && event_->run != 275344
+        && event_->run != 275345
+        && event_->run != 275370
+         && event_->run != 275371
+        && event_->run != 275375
+        && event_->run != 275376
+        && event_->run != 275657
+        && event_->run != 275658
+        && event_->run != 275659
+        && event_->run != 275757
+        && event_->run != 275758
+        && event_->run != 275759
+        && event_->run != 275761
+        && event_->run != 275763
+        && event_->run != 275764
+        && event_->run != 275766
+        && event_->run != 275767
+        && event_->run != 275768
+        && event_->run != 275769
+        && event_->run != 275772
+        && event_->run != 275773
+        && event_->run != 275774
+        && event_->run != 275776
+        && event_->run != 275777
+        && event_->run != 275778
+        && event_->run != 275781
+         && event_->run != 275782
+        && event_->run != 275783                      
+        )
+    {
+      //skip the corresponding event
+      continue;
+    }
+
+
+
 		//load info for the event
     recoTree->GetEntry(i);
     metFilterTree->GetEntry(i);
@@ -238,13 +305,15 @@ void eSums(){
     if (hwOn){l1hwTree->GetEntry(i);}
 
     recoSums.ett = recoMet_->sumEt;
-    recoSums.met = recoMet_->met;
+    // recoSums.met = recoMet_->met;
+    recoSums.met = recoMet_->caloMetBE;
     recoSums.htt = recoMet_->Ht;
     recoSums.mht = recoMet_->mHt;
-    recoSums.metPhi = recoMet_->metPhi;
+    // recoSums.metPhi = recoMet_->metPhi;
+    recoSums.metPhi = recoMet_->caloMetPhiBE;
     recoSums.mhtPhi = recoMet_->mHtPhi;
    
-    if (emuOn){
+    if (emuOn){ // need to do a fix like below at one point...
       l1Sums.ett = l1emu_->sumEt[0];
       l1Sums.met = l1emu_->sumEt[2];
       l1Sums.htt = l1emu_->sumEt[1];
@@ -255,12 +324,26 @@ void eSums(){
 
     if (hwOn){
       // numbers different due to nonZero BX in HW (could cause a seg fault if this all changes)
-      l1Sums.ett = l1hw_->sumEt[8];
-      l1Sums.met = l1hw_->sumEt[10];
-      l1Sums.htt = l1hw_->sumEt[9];
-      l1Sums.mht = l1hw_->sumEt[11];
-      l1Sums.metPhi = l1hw_->sumPhi[10];
-      l1Sums.mhtPhi = l1hw_->sumPhi[11];
+      // l1Sums.ett = l1hw_->sumEt[8];
+      // l1Sums.met = l1hw_->sumEt[10];
+      // l1Sums.htt = l1hw_->sumEt[9];
+      // l1Sums.mht = l1hw_->sumEt[11];
+      // l1Sums.metPhi = l1hw_->sumPhi[10];
+      // l1Sums.mhtPhi = l1hw_->sumPhi[11];
+
+      for (unsigned int c=0; c<l1hw_->nSums; c++){
+          if( l1hw_->sumBx[c] != 0 ) continue;
+          if( l1hw_->sumType[c] == L1Analysis::kTotalEt ) l1Sums.ett = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kTotalHt ) l1Sums.htt = l1hw_->sumEt[c];
+          if( l1hw_->sumType[c] == L1Analysis::kMissingEt ) {l1Sums.met = l1hw_->sumEt[c]; l1Sums.metPhi = l1hw_->sumPhi[c];}
+          if( l1hw_->sumType[c] == L1Analysis::kMissingHt ) {l1Sums.mht = l1hw_->sumEt[c]; l1Sums.mhtPhi = l1hw_->sumPhi[c];}
+      }
+
+
+
+
+
+
     }
 
     if(metFiltersOn==false || met_filter(recoMetFilter_->hbheNoiseFilter, recoMetFilter_->hbheNoiseIsoFilter, recoMetFilter_->cscTightHalo2015Filter, recoMetFilter_->ecalDeadCellTPFilter,
@@ -317,8 +400,7 @@ void eSums(){
       }
 
     }//closes 'if' we pass the reco met filter
-    if (i % 10000 == 0){
-	    cout << i << " out of " << nevent << endl;}		
+	
   }//closes loop through the events
 
   //save the output ROOT file
