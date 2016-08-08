@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGeneratorDataFormat.h"
 /* 
 creates turnOn efficiencies and comparison histograms for jets
 How to use:
@@ -78,10 +79,10 @@ struct Jet{
 //MAIN FUNCTION
 void jets(){
 
-  bool hwOn = true;  //are we using data from hardware?
-  bool emuOn = false;  //are we using data from emulator?
-  bool recoOn = true; //are we using reco data?
-  bool mcOn = false;  //are we using mc data?
+  bool hwOn = false;  //are we using data from hardware?
+  bool emuOn = true;  //are we using data from emulator?
+  bool recoOn = false; //are we using reco data?
+  bool mcOn = true;  //are we using mc data?
 
   if (hwOn==false && emuOn==false){
     cout << "exiting as neither hardware or emulator selected" << endl;
@@ -118,7 +119,7 @@ void jets(){
 
   //create a ROOT file to save all the histograms to (actually at end of script)
   //first check the file doesn't exist already so we don't overwrite
-  string dirName = "output_jets/multipleRunsB0005_singleMuon_v67p0_hwPf_tightLepVetoMuMultZeroCentral_noCutsHf_withOfflineCorrectios/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
+  string dirName = "output_jets/L1JEC_wCorr_PU45to55/"; //***runNumber, triggerType, version, HW/EMU and PF/GEN, cleaningInformation!!!***
   string outputFilename = dirName + "histos.root";
 
   TFile *kk = TFile::Open( outputFilename.c_str() );
@@ -132,14 +133,16 @@ void jets(){
   TChain * l1emuTree = new TChain("l1UpgradeEmuTree/L1UpgradeTree");
   TChain * l1hwTree = new TChain("l1UpgradeTree/L1UpgradeTree");
   TChain * recoTree = new TChain("l1JetRecoTree/JetRecoTree");
-  TChain * mcTree = new TChain("l1ExtraTreeGenAk4/L1ExtraTree");
+  TChain * mcTree = new TChain("l1GeneratorTree/L1GenTree");
 
-  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v67p0/SingleMuon/crab_Collision2016-wRECO-l1t-integration-v67p0__SingleMuon_2016B_v2/160702_220353/0005/*.root";
+  string inputFile01 = "/hdfs/L1JEC/CMSSW_8_0_9/QCDFlatFall15PU0to50NzshcalRaw_genEmu_15Jul2016_809v70_L1JECinFuncForm0262d_L1JEC4a3a1_v2/QCDFlatFall15PU0to50NzshcalRaw/L1Ntuple_*.root";
+  // string inputFile01 = "/hdfs/L1JEC/CMSSW_8_0_9/QCDFlatFall15PU0to50NzshcalRaw_genEmu_30June2016_809v70_noJEC_893ca/QCDFlatFall15PU0to50NzshcalRaw/L1Ntuple_*.root";
+
   // string inputFile02 = "";
   // string inputFile03 = "";
 
   if (emuOn){
-    l1emuTree->Add("");
+    l1emuTree->Add(inputFile01.c_str());
   }
   if (hwOn){
     l1hwTree->Add(inputFile01.c_str());
@@ -148,7 +151,7 @@ void jets(){
     recoTree->Add(inputFile01.c_str());
   }
   if (mcOn){
-      mcTree->Add("");
+      mcTree->Add(inputFile01.c_str());
   }
 
   TChain * eventTree = new TChain("l1EventTree/L1EventTree");
@@ -161,7 +164,7 @@ void jets(){
   const double refJet_etaMaxCentral = 3.00;      //max eta for REF jet to be CENTRAL
   const double refJet_etaMinHF = 3.50;           //max eta for REF jet to be HF
   const double refJet_etaMaxHF = 4.50;           //max eta for REF jet to be HF
-  const double dR_matchMax = 0.40;               //max dR allowed for a turnOn 'match'
+  const double dR_matchMax = 0.30;               //max dR allowed for a turnOn 'match'
   const double refJet_etaMaxBarrel = 1.45;       //max eta for REF jet to be BARREL
   const double refJet_etaMinEndcap = 1.55;       //min eta for REF jet to be ENDCAP  
 
@@ -216,8 +219,8 @@ void jets(){
   l1hwTree->SetBranchAddress("L1Upgrade", &l1hw_);
   L1Analysis::L1AnalysisRecoJetDataFormat      *recoJet_ = new L1Analysis::L1AnalysisRecoJetDataFormat();
   recoTree->SetBranchAddress("Jet", &recoJet_);
-  L1Analysis::L1AnalysisL1ExtraDataFormat      *genJet_ = new L1Analysis::L1AnalysisL1ExtraDataFormat();
-  mcTree->SetBranchAddress("L1Extra", &genJet_);
+  L1Analysis::L1AnalysisGeneratorDataFormat      *genJet_ = new L1Analysis::L1AnalysisGeneratorDataFormat();
+  mcTree->SetBranchAddress("Generator", &genJet_);
 
   //create the framework for the histograms
   // phi bins
@@ -297,9 +300,9 @@ void jets(){
   TH2F * hdEtVsET_endcap = new TH2F("hdEtVsET_endcap", ";offline E_{T} (GeV);#ET_{L1} / #ET_{offline}", nRefEtScatBins, refEtScatLo, refEtScatHi, nResponseBins, responseLo, responseHi);
 
   // turnOn bins
-  int nTurnOnBins = 40;
+  int nTurnOnBins = 100;
   float turnOnLo = 0;
-  float turnOnHi = 400;
+  float turnOnHi = 500;
 
   // turnOns histos
   // nb: num=numerator, den=denominator. At the bottom of script we create the ratio
@@ -354,71 +357,77 @@ void jets(){
     if (i % 10000 == 0){
       cout << i << " out of " << nevent << endl;} 
 
-    // //lumi break clause
-    eventTree->GetEntry(i);
-    if (
-           event_->run != 275282
-        && event_->run != 275283
-        && event_->run != 275284
-        && event_->run != 275285
-        && event_->run != 275286
-        && event_->run != 275289
-        && event_->run != 275290
-        && event_->run != 275291
-        && event_->run != 275292
-        && event_->run != 275293
+    // // //lumi break clause
+    // eventTree->GetEntry(i);
+    // if (
+    //        event_->run != 275282
+    //     && event_->run != 275283
+    //     && event_->run != 275284
+    //     && event_->run != 275285
+    //     && event_->run != 275286
+    //     && event_->run != 275289
+    //     && event_->run != 275290
+    //     && event_->run != 275291
+    //     && event_->run != 275292
+    //     && event_->run != 275293
 
-        && event_->run != 275309
-        && event_->run != 275310
-        && event_->run != 275311
+    //     && event_->run != 275309
+    //     && event_->run != 275310
+    //     && event_->run != 275311
         
-        && event_->run != 275319      
-        && event_->run != 275326
-        && event_->run != 275337
-        && event_->run != 275338
-        && event_->run != 275344
-        && event_->run != 275345
+    //     && event_->run != 275319      
+    //     && event_->run != 275326
+    //     && event_->run != 275337
+    //     && event_->run != 275338
+    //     && event_->run != 275344
+    //     && event_->run != 275345
 
-        && event_->run != 275370
-       && event_->run != 275371
-        && event_->run != 275375
-        && event_->run != 275376
+    //     && event_->run != 275370
+    //    && event_->run != 275371
+    //     && event_->run != 275375
+    //     && event_->run != 275376
 
-        && event_->run != 275657
-        && event_->run != 275658
-        && event_->run != 275659
+    //     && event_->run != 275657
+    //     && event_->run != 275658
+    //     && event_->run != 275659
 
-        && event_->run != 275757
-        && event_->run != 275758
-        && event_->run != 275759
-        && event_->run != 275761
-        && event_->run != 275763
-        && event_->run != 275764
-        && event_->run != 275766
-        && event_->run != 275767
-        && event_->run != 275768
-        && event_->run != 275769
-        && event_->run != 275772
-        && event_->run != 275773
-        && event_->run != 275774
-        && event_->run != 275776
-        && event_->run != 275777
-        && event_->run != 275778
+    //     && event_->run != 275757
+    //     && event_->run != 275758
+    //     && event_->run != 275759
+    //     && event_->run != 275761
+    //     && event_->run != 275763
+    //     && event_->run != 275764
+    //     && event_->run != 275766
+    //     && event_->run != 275767
+    //     && event_->run != 275768
+    //     && event_->run != 275769
+    //     && event_->run != 275772
+    //     && event_->run != 275773
+    //     && event_->run != 275774
+    //     && event_->run != 275776
+    //     && event_->run != 275777
+    //     && event_->run != 275778
         
-        && event_->run != 275781
-        && event_->run != 275782
-        && event_->run != 275783                      
-        )
-    {
-      //skip the corresponding event
-      continue;
-    }
+    //     && event_->run != 275781
+    //     && event_->run != 275782
+    //     && event_->run != 275783                      
+    //     )
+    // {
+    //   //skip the corresponding event
+    //   continue;
+    // }
+
 
     if (emuOn){l1emuTree->GetEntry(i);}
     if (hwOn){l1hwTree->GetEntry(i);}
     if (recoOn){recoTree->GetEntry(i);}
     if (mcOn){mcTree->GetEntry(i);}    
-              
+  
+
+    // extra line for selecting the PU  
+    if (genJet_->nVtx < 45 || genJet_->nVtx > 55) continue;
+
+
     //////////////////////////////////////
     ///analysis///////////////////////////
     //////////////////////////////////////
@@ -446,10 +455,10 @@ void jets(){
       refjet.muMult = recoJet_->muMult;
     }
     if (mcOn){
-      refjet.et = genJet_->cenJetEt;
-      refjet.eta = genJet_->cenJetEta;
-      refjet.phi = genJet_->cenJetPhi;
-      refjet.n = genJet_->nCenJets;
+      refjet.et = genJet_->jetPt;
+      refjet.eta = genJet_->jetEta;
+      refjet.phi = genJet_->jetPhi;
+      refjet.n = genJet_->nJet;
     }
     if (emuOn){
       l1jet.et = l1emu_->jetEt;
