@@ -9,6 +9,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisEventDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloTowerDataFormat.h"
 /* TODO: put errors in rates...
 creates the the rates and distributions for l1 trigger objects
 How to use:
@@ -32,11 +33,11 @@ void rates(){
     return;
   }
 
-  double numBunch = 1740; //the number of bunches colliding for the run of interest
-  double runLum = 0.44;  //luminosity of the run of interest (*10^34)
-  double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
+  double numBunch = 2208; //the number of bunches colliding for the run of interest
+  double runLum = 1.1480;  //luminosity of the run of interest (*10^34)
+  // double expectedLum = 1.15; //expected luminostiy of 2016 runs (*10^34)
 
-  string outputDirectory = "run274199_zeroBias_809intv61p1_RECOHWEMU";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
+  string outputDirectory = "run279975_zeroBias_v86p4_emuHw";  //***runNumber, triggerType, version, hw/emu/both***MAKE SURE IT EXISTS
   string outputFilename = "output_rates/" + outputDirectory + "/histos.root";
   TFile* kk = TFile::Open( outputFilename.c_str() );
   if (kk!=0){
@@ -44,7 +45,7 @@ void rates(){
     return;
   }
 
-  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-wRECO-l1t-integration-v61p1/ZeroBias/crab_Collision2016-wRECO-l1t-integration-v61p1__274199_ZeroBias/160603_235416/0000/L1Ntuple_*.root";
+  string inputFile01 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/Collision2016-noRECO-l1t-v86p4_Stage2Params_v2_2/ParkingZeroBias0/crab_Collision2016-noRECO-l1t-v86p4_Stage2Params_v2_2__279975_ParkingZeroBias0/160923_211356/0000/L1Ntuple_*.root";
   // string inputFile02 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias2/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias2/160512_105739/0000/*.root";
   // string inputFile03 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias3/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias3/160512_105752/0000/*.root";
   // string inputFile04 = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/L1Menu2016/Stage2/l1t-integration-v48p0-CMSSW-807/ZeroBias4/crab_l1t-integration-v48p0-CMSSW-807__259721_ZeroBias4/160512_105712/0000/*.root";
@@ -71,6 +72,14 @@ void rates(){
   // eventTree->Add(inputFile03.c_str());
   // eventTree->Add(inputFile04.c_str());
 
+  TChain * treeL1TowersEmu = new TChain("l1CaloTowerEmuTree/L1CaloTowerTree");
+  if (emuOn) treeL1TowersEmu->Add(inputFile01.c_str()); 
+
+  TChain * treeL1TowersHW = new TChain("l1CaloTowerTree/L1CaloTowerTree");
+  if (hwOn) treeL1TowersHW->Add(inputFile01.c_str());  
+
+
+
   // In case you want to include PU info
   // TChain * vtxTree = new TChain("l1RecoTree/RecoTree");
   // if(binByPileUp){
@@ -88,12 +97,20 @@ void rates(){
   eventTree->SetBranchAddress("Event", &event_);
   // L1Analysis::L1AnalysisRecoVertexDataFormat    *vtx_ = new L1Analysis::L1AnalysisRecoVertexDataFormat();
   // vtxTree->SetBranchAddress("Vertex", &vtx_);
+  L1Analysis::L1AnalysisL1CaloTowerDataFormat  *l1TowerEmu_ = new L1Analysis::L1AnalysisL1CaloTowerDataFormat();
+  treeL1TowersEmu->SetBranchAddress("L1CaloTower", &l1TowerEmu_);
+
+  L1Analysis::L1AnalysisL1CaloTowerDataFormat  *l1TowerHW_ = new L1Analysis::L1AnalysisL1CaloTowerDataFormat();
+  treeL1TowersHW->SetBranchAddress("L1CaloTower", &l1TowerHW_);  
+
+
 
 
   // get number of entries
   Long64_t nentries;
   if (emuOn) nentries = treeL1emu->GetEntries();
   else nentries = treeL1hw->GetEntries();
+  // nentries = 500000; // just to keep run time down
   int goodLumiEventCount = 0;
 
   string outputTxtFilename = "output_rates/" + outputDirectory + "/extraInfo.txt";
@@ -166,6 +183,8 @@ void rates(){
   TH1F* etSumRates_emu = new TH1F("etSumRates_emu",axR.c_str(), nEtSumBins, etSumLo, etSumHi);
   TH1F* metSumRates_emu = new TH1F("metSumRates_emu",axR.c_str(), nMetSumBins, metSumLo, metSumHi); 
   
+  TH1F* singleJetRates_emu_hfSat = new TH1F("singleJetRates_emu_hfSat", axR.c_str(), nJetBins, jetLo, jetHi);
+
   TH1F* singleJetRates_hw = new TH1F("singleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
   TH1F* doubleJetRates_hw = new TH1F("doubleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
   TH1F* tripleJetRates_hw = new TH1F("tripleJetRates_hw", axR.c_str(), nJetBins, jetLo, jetHi);
@@ -183,12 +202,15 @@ void rates(){
   TH1F* etSumRates_hw = new TH1F("etSumRates_hw",axR.c_str(), nEtSumBins, etSumLo, etSumHi);
   TH1F* metSumRates_hw = new TH1F("metSumRates_hw",axR.c_str(), nMetSumBins, metSumLo, metSumHi); 
 
+  double etaArrayPositive[] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+  double etaArrayNegative[] = {-2.964, -3.139, -3.314, -3.489, -3.664, -3.839, -4.013, -4.191, -4.363, -4.538, -4.716, -4.889, -5.191};
+
+
   /////////////////////////////////
   // loop through all the entries//
   /////////////////////////////////
   for (Long64_t jentry=0; jentry<nentries; jentry++){
     if((jentry%10000)==0) std::cout << "Done " << jentry  << " events of " << nentries << std::endl;
-
 
     //lumi break clause
     eventTree->GetEntry(jentry);
@@ -227,17 +249,52 @@ void rates(){
 
     //do routine for L1 emulator quantites
     if (emuOn){
+
       treeL1emu->GetEntry(jentry);
+      treeL1TowersEmu->GetEntry(jentry);
+
       // get jetEt*, egEt*, tauEt, htSum, mhtSum, etSum, metSum
       // ALL EMU OBJECTS HAVE BX=0...
       double jetEt_1 = 0;
       double jetEt_2 = 0;
       double jetEt_3 = 0;
       double jetEt_4 = 0;
+      double jetEt_1_hfSat = 0;
       if (l1emu_->nJets>0) jetEt_1 = l1emu_->jetEt[0];
       if (l1emu_->nJets>1) jetEt_2 = l1emu_->jetEt[1];
       if (l1emu_->nJets>2) jetEt_3 = l1emu_->jetEt[2];
       if (l1emu_->nJets>3) jetEt_4 = l1emu_->jetEt[3];       
+
+      // hack to change leading jet energy
+      // if it is in HF with a saturated tower
+      // to a maximum of 1024GeV
+      // NOTE: not bothering to apply the hack to hw
+     
+      // if (l1emu_->nJets>0){
+      //   jetEt_1_hfSat = jetEt_1;
+      //   if (fabs(l1emu_->jetEta[0]) > 3.00){
+
+      //     for (int count = 0; count < l1TowerEmu_->nTower; count++){
+      //       if (l1TowerEmu_->iet[count] > 254.5){
+
+      //         if (l1TowerEmu_->ieta[count] > 29
+      //             && l1emu_->jetEta[0] > etaArrayPositive[l1TowerEmu_->ieta[count]-30]
+      //             && l1emu_->jetEta[0] < etaArrayPositive[l1TowerEmu_->ieta[count]-29]
+      //             ){
+      //           jetEt_1_hfSat = 1024.0;
+      //         }
+
+      //         if (l1TowerEmu_->ieta[count] < -29
+      //             && l1emu_->jetEta[0] < etaArrayNegative[-1*(l1TowerEmu_->ieta[count])-30]
+      //             && l1emu_->jetEta[0] > etaArrayNegative[-1*(l1TowerEmu_->ieta[count])-29]
+      //             ){
+      //           jetEt_1_hfSat = 1024.0;
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
+
       
       double egEt_1 = 0;
       double egEt_2 = 0;
@@ -306,6 +363,10 @@ void rates(){
       // for each bin fill according to whether our object has a larger corresponding energy
       for(int bin=0; bin<nJetBins; bin++){
         if( (jetEt_1) >= jetLo + (bin*jetBinWidth) ) singleJetRates_emu->Fill(jetLo+(bin*jetBinWidth));  //GeV
+      }
+
+      for(int bin=0; bin<nJetBins; bin++){
+        if( (jetEt_1_hfSat) >= jetLo + (bin*jetBinWidth) ) singleJetRates_emu_hfSat->Fill(jetLo+(bin*jetBinWidth));  //GeV
       } 
 
       for(int bin=0; bin<nJetBins; bin++){
@@ -377,6 +438,7 @@ void rates(){
     //do routine for L1 hardware quantities
     if (hwOn){
       treeL1hw->GetEntry(jentry);
+      treeL1TowersHW->GetEntry(jentry);
       // get jetEt*, egEt*, tauEt, htSum, mhtSum, etSum, metSum
       // ***INCLUDES NON_ZERO bx*** can't just read values off
       double jetEt_1 = 0;
@@ -538,12 +600,13 @@ void rates(){
 
   TFile g( outputFilename.c_str() , "new");
   // normalisation factor for rate histograms (11kHz in the orbit frequency)
-  // double norm = 11246*(numBunch/goodLumiEventCount); // no lumi rescale
-  double norm = 11246*(numBunch/goodLumiEventCount)*(expectedLum/runLum); //scale to nominal lumi
+  double norm = 11246*(numBunch/goodLumiEventCount); // no lumi rescale
+  // double norm = 11246*(numBunch/goodLumiEventCount)*(expectedLum/runLum); //scale to nominal lumi
 
 
   if (emuOn){
     singleJetRates_emu->Scale(norm);
+    singleJetRates_emu_hfSat->Scale(norm);
     doubleJetRates_emu->Scale(norm);
     tripleJetRates_emu->Scale(norm);
     quadJetRates_emu->Scale(norm);
@@ -564,6 +627,7 @@ void rates(){
     //want error -> error * sqrt(norm) ?
 
     singleJetRates_emu->Write();
+    singleJetRates_emu_hfSat->Write();
     doubleJetRates_emu->Write();
     tripleJetRates_emu->Write();
     quadJetRates_emu->Write();
@@ -619,7 +683,7 @@ void rates(){
   myfile << "using the following ntuple: " << inputFile01 << endl;
   myfile << "number of colliding bunches = " << numBunch << endl;
   myfile << "run luminosity = " << runLum << endl;
-  myfile << "expected luminosity = " << expectedLum << endl; 
+  // myfile << "expected luminosity = " << expectedLum << endl; 
   myfile << "norm factor used = " << norm << endl;
   myfile << "number of good events = " << goodLumiEventCount << endl;
   myfile.close(); 
